@@ -12,7 +12,7 @@
         <!-- Player indicators top corners -->
         <div class="player-indicator sun-indicator" id="sunIndicator">
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/sun.png"
-                 onerror="this.src='https://raw.githubusercontent.com/msPokemon/sprites/master/sprites/trainers/30.png'"
+                 onerror="this.src='https://play.pokemonshowdown.com/sprites/trainers/sun.png'"
                  alt="Dresseur Soleil" class="trainer-sprite">
             <div class="player-info">
                 <span class="player-name">Ultra Soleil</span>
@@ -26,7 +26,7 @@
                 <span class="status-dot offline" id="moonStatus"></span>
             </div>
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/moon.png"
-                 onerror="this.src='https://raw.githubusercontent.com/msikma/pokesprite/master/misc/trainer/30.png'"
+                 onerror="this.src='https://play.pokemonshowdown.com/sprites/trainers/selene-pokemon.png'"
                  alt="Dresseur Lune" class="trainer-sprite">
         </div>
 
@@ -36,17 +36,8 @@
         </header>
 
         <div class="session-setup" id="sessionSetup">
-            <h2>Configuration de la session</h2>
-            <div class="setup-options">
-                <div class="option">
-                    <input type="text" id="sessionId" placeholder="Code de session">
-                    <button onclick="joinSession()">Rejoindre</button>
-                </div>
-                <div class="divider">ou</div>
-                <button class="btn-primary" onclick="createSession()">Cr&eacute;er une nouvelle session</button>
-            </div>
-            <div class="player-select" id="playerSelect" style="display:none;">
-                <h3>Choisir ton jeu</h3>
+            <h2>Choisis ton jeu</h2>
+            <div class="player-select">
                 <button class="game-btn sun" onclick="selectPlayer('sun')">
                     <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/791.png" alt="Solgaleo">
                     Ultra Soleil
@@ -60,10 +51,6 @@
 
         <main id="mainApp" style="display:none;">
             <div class="stats-bar">
-                <div class="stat">
-                    <span class="stat-label">Session:</span>
-                    <span class="stat-value" id="currentSession">-</span>
-                </div>
                 <div class="stat sun-stat">
                     <span class="stat-label">Ultra Soleil:</span>
                     <span class="stat-value" id="sunAlive">0</span> vivants
@@ -74,6 +61,7 @@
                     <span class="stat-value" id="moonAlive">0</span> vivants
                     <span class="stat-dead" id="moonDead">0</span> morts
                 </div>
+                <button class="change-player-btn" onclick="changePlayer()">Changer de joueur</button>
             </div>
 
             <div class="zones-container" id="zonesContainer"></div>
@@ -82,9 +70,9 @@
         <div class="modal" id="pokemonModal">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
-                <h2>Ajouter un Pok&eacute;mon</h2>
+                <h2>Ajouter un Pokemon</h2>
                 <p class="modal-zone" id="modalZone"></p>
-                <input type="text" id="pokemonSearch" placeholder="Rechercher un Pok&eacute;mon..." oninput="filterPokemon()">
+                <input type="text" id="pokemonSearch" placeholder="Rechercher un Pokemon..." oninput="filterPokemon()">
                 <div class="pokemon-grid" id="pokemonGrid"></div>
             </div>
         </div>

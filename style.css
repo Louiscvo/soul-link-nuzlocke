@@ -545,6 +545,46 @@ header h1 {
     background: rgba(255,255,255,0.2);
 }
 
+.change-player-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    padding: 8px 15px;
+    color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.change-player-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.player-select {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.player-taken {
+    opacity: 0.5;
+    pointer-events: none;
+    position: relative;
+}
+
+.player-taken::after {
+    content: "PRIS";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
 /* Responsive for indicators */
 @media (max-width: 768px) {
     .player-indicator {

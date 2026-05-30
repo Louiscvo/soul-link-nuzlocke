@@ -1,142 +1,86 @@
-// Configuration Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    authDomain: "soul-link-nuzlocke.firebaseapp.com",
-    databaseURL: "https://soul-link-nuzlocke-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "soul-link-nuzlocke",
-    storageBucket: "soul-link-nuzlocke.appspot.com",
-    messagingSenderId: "000000000000",
-    appId: "1:000000000000:web:xxxxxxxxxxxxxxxx"
-};
-
 // Variables globales
-let db = null;
-let currentSession = null;
 let currentPlayer = null; // 'sun' ou 'moon'
-let sessionRef = null;
 let currentZone = null;
 let presenceInterval = null;
 
+// Clé unique pour la sauvegarde
+const STORAGE_KEY = 'soulLinkNuzlocke';
+const PRESENCE_KEY = 'soulLinkPresence';
+
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
-    // Vérifier si Firebase est disponible
-    if (typeof firebase !== 'undefined') {
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-        } catch(e) {
-            console.log('Firebase non configuré, mode local activé');
-        }
-    }
-
-    // Vérifier session existante dans localStorage
-    const savedSession = localStorage.getItem('soulLinkSession');
+    // Vérifier si joueur déjà choisi
     const savedPlayer = localStorage.getItem('soulLinkPlayer');
 
-    if (savedSession && savedPlayer) {
-        currentSession = savedSession;
+    if (savedPlayer) {
         currentPlayer = savedPlayer;
         startApp();
     }
+
+    // Mettre à jour la présence au chargement
+    updatePresenceUI();
 });
-
-// Créer une nouvelle session
-function createSession() {
-    currentSession = generateSessionId();
-    document.getElementById('playerSelect').style.display = 'block';
-    document.getElementById('sessionId').value = currentSession;
-}
-
-// Rejoindre une session
-function joinSession() {
-    const sessionId = document.getElementById('sessionId').value.trim().toUpperCase();
-    if (sessionId.length >= 4) {
-        currentSession = sessionId;
-        document.getElementById('playerSelect').style.display = 'block';
-    } else {
-        alert('Code de session invalide');
-    }
-}
 
 // Sélectionner le joueur
 function selectPlayer(player) {
     currentPlayer = player;
-    localStorage.setItem('soulLinkSession', currentSession);
     localStorage.setItem('soulLinkPlayer', currentPlayer);
     startApp();
+}
+
+// Changer de joueur
+function changePlayer() {
+    // Marquer comme hors ligne avant de changer
+    markOffline();
+    localStorage.removeItem('soulLinkPlayer');
+    currentPlayer = null;
+    document.getElementById('sessionSetup').style.display = 'block';
+    document.getElementById('mainApp').style.display = 'none';
 }
 
 // Démarrer l'application
 function startApp() {
     document.getElementById('sessionSetup').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
-    document.getElementById('currentSession').textContent = currentSession;
-
-    // Initialiser la référence Firebase
-    if (db) {
-        sessionRef = db.ref('sessions/' + currentSession);
-        setupRealtimeListeners();
-        setupPresence();
-    } else {
-        // Mode local - simuler présence
-        updatePresenceUI();
-    }
 
     renderZones();
     loadData();
 
-    // Mettre à jour la présence toutes les 30 secondes
-    presenceInterval = setInterval(updatePresence, 30000);
+    // Mettre à jour la présence toutes les 10 secondes
+    presenceInterval = setInterval(updatePresence, 10000);
     updatePresence();
 }
 
-// Configuration des listeners temps réel
-function setupRealtimeListeners() {
-    if (!sessionRef) return;
-
-    sessionRef.on('value', (snapshot) => {
-        const data = snapshot.val() || {};
-        updateUI(data);
-        updatePresenceUI(data.presence);
-    });
-}
-
-// Gestion de la présence
-function setupPresence() {
-    if (!sessionRef) return;
-
-    // Marquer comme hors ligne à la déconnexion
-    const presenceRef = sessionRef.child('presence/' + currentPlayer);
-    presenceRef.onDisconnect().set({
-        online: false,
-        lastSeen: firebase.database.ServerValue.TIMESTAMP
-    });
-}
-
+// Gestion de la présence (localStorage partagé)
 function updatePresence() {
-    const presenceData = {
+    const now = Date.now();
+    let presence = JSON.parse(localStorage.getItem(PRESENCE_KEY) || '{}');
+
+    presence[currentPlayer] = {
         online: true,
-        lastSeen: Date.now()
+        lastSeen: now
     };
 
-    if (sessionRef) {
-        sessionRef.child('presence/' + currentPlayer).set(presenceData);
-    } else {
-        // Mode local
-        const data = JSON.parse(localStorage.getItem('soulLinkData_' + currentSession) || '{}');
-        if (!data.presence) data.presence = {};
-        data.presence[currentPlayer] = presenceData;
-        localStorage.setItem('soulLinkData_' + currentSession, JSON.stringify(data));
-        updatePresenceUI(data.presence);
+    localStorage.setItem(PRESENCE_KEY, JSON.stringify(presence));
+    updatePresenceUI();
+}
+
+function markOffline() {
+    let presence = JSON.parse(localStorage.getItem(PRESENCE_KEY) || '{}');
+    if (presence[currentPlayer]) {
+        presence[currentPlayer].online = false;
+        presence[currentPlayer].lastSeen = Date.now();
+        localStorage.setItem(PRESENCE_KEY, JSON.stringify(presence));
     }
 }
 
-function updatePresenceUI(presence = {}) {
+function updatePresenceUI() {
+    const presence = JSON.parse(localStorage.getItem(PRESENCE_KEY) || '{}');
     const sunStatus = document.getElementById('sunStatus');
     const moonStatus = document.getElementById('moonStatus');
 
     const now = Date.now();
-    const timeout = 60000; // 60 secondes
+    const timeout = 30000; // 30 secondes
 
     // Sun player
     if (presence.sun && presence.sun.online && (now - presence.sun.lastSeen) < timeout) {
@@ -153,21 +97,16 @@ function updatePresenceUI(presence = {}) {
     }
 
     // Highlight current player
-    if (currentPlayer === 'sun') {
-        document.getElementById('sunIndicator').style.boxShadow = '0 0 20px rgba(243, 156, 18, 0.5)';
-    } else if (currentPlayer === 'moon') {
-        document.getElementById('moonIndicator').style.boxShadow = '0 0 20px rgba(155, 89, 182, 0.5)';
-    }
-}
+    const sunIndicator = document.getElementById('sunIndicator');
+    const moonIndicator = document.getElementById('moonIndicator');
 
-// Générer un ID de session
-function generateSessionId() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let result = '';
-    for (let i = 0; i < 6; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    if (currentPlayer === 'sun') {
+        sunIndicator.style.boxShadow = '0 0 20px rgba(243, 156, 18, 0.7)';
+        moonIndicator.style.boxShadow = 'none';
+    } else if (currentPlayer === 'moon') {
+        moonIndicator.style.boxShadow = '0 0 20px rgba(155, 89, 182, 0.7)';
+        sunIndicator.style.boxShadow = 'none';
     }
-    return result;
 }
 
 // Rendu des zones
@@ -209,40 +148,19 @@ function renderZones() {
 
 // Charger les données
 function loadData() {
-    if (sessionRef) {
-        sessionRef.once('value').then(snapshot => {
-            const data = snapshot.val() || {};
-            updateUI(data);
-        });
-    } else {
-        // Mode local sans Firebase
-        const localData = JSON.parse(localStorage.getItem('soulLinkData_' + currentSession) || '{}');
-        updateUI(localData);
-    }
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    updateUI(data);
 }
 
 // Sauvegarder les données
 function saveData(data) {
-    if (sessionRef) {
-        sessionRef.set(data);
-    } else {
-        localStorage.setItem('soulLinkData_' + currentSession, JSON.stringify(data));
-        updateUI(data);
-    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    updateUI(data);
 }
 
 // Obtenir les données actuelles
 function getData() {
-    return new Promise((resolve) => {
-        if (sessionRef) {
-            sessionRef.once('value').then(snapshot => {
-                resolve(snapshot.val() || {});
-            });
-        } else {
-            const localData = JSON.parse(localStorage.getItem('soulLinkData_' + currentSession) || '{}');
-            resolve(localData);
-        }
-    });
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 }
 
 // Mettre à jour l'interface
@@ -303,11 +221,6 @@ function updateUI(data) {
     document.getElementById('sunDead').textContent = sunDead;
     document.getElementById('moonAlive').textContent = moonAlive;
     document.getElementById('moonDead').textContent = moonDead;
-
-    // Mettre à jour la présence
-    if (data.presence) {
-        updatePresenceUI(data.presence);
-    }
 }
 
 // Rendu d'un slot Pokémon
@@ -321,7 +234,7 @@ function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner, nickname
             <span class="pokemon-nickname">"${nickname}"</span>
     `;
 
-    // Boutons seulement pour son propre joueur
+    // Boutons seulement pour son propre joueur et si pas mort
     if (player === currentPlayer && !isDead) {
         html += `
             <button class="reroll-btn" onclick="rerollNickname('${zoneId}', '${player}')">🎲 Reroll</button>
@@ -340,8 +253,8 @@ function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner, nickname
 }
 
 // Reroll le surnom
-async function rerollNickname(zoneId, player) {
-    const data = await getData();
+function rerollNickname(zoneId, player) {
+    const data = getData();
 
     if (data.zones && data.zones[zoneId] && data.zones[zoneId][player]) {
         data.zones[zoneId][player].nickname = getRandomNickname();
@@ -353,7 +266,7 @@ async function rerollNickname(zoneId, player) {
 function openModal(zoneId, player) {
     // Vérifier que c'est bien le joueur courant
     if (player !== currentPlayer) {
-        alert(`Tu ne peux ajouter des Pokémon que pour Ultra ${currentPlayer === 'sun' ? 'Soleil' : 'Lune'}`);
+        alert(`Tu ne peux ajouter des Pokemon que pour Ultra ${currentPlayer === 'sun' ? 'Soleil' : 'Lune'}`);
         return;
     }
 
@@ -398,10 +311,10 @@ function filterPokemon() {
 }
 
 // Sélectionner un Pokémon
-async function selectPokemon(pokemonId) {
+function selectPokemon(pokemonId) {
     if (!currentZone) return;
 
-    const data = await getData();
+    const data = getData();
 
     if (!data.zones) data.zones = {};
     if (!data.zones[currentZone]) data.zones[currentZone] = {};
@@ -418,12 +331,12 @@ async function selectPokemon(pokemonId) {
 }
 
 // Marquer un Pokémon comme mort (Soul Link)
-async function killPokemon(zoneId, player) {
-    if (!confirm('Confirmer la mort de ce Pokémon ? Son partenaire Soul Link mourra aussi !')) {
+function killPokemon(zoneId, player) {
+    if (!confirm('Confirmer la mort de ce Pokemon ? Son partenaire Soul Link mourra aussi !')) {
         return;
     }
 
-    const data = await getData();
+    const data = getData();
 
     if (data.zones && data.zones[zoneId]) {
         // Marquer les deux comme morts (Soul Link)
@@ -458,11 +371,13 @@ window.addEventListener('beforeunload', () => {
     if (presenceInterval) {
         clearInterval(presenceInterval);
     }
-    // Marquer comme hors ligne
-    if (sessionRef && currentPlayer) {
-        sessionRef.child('presence/' + currentPlayer).update({
-            online: false,
-            lastSeen: Date.now()
-        });
-    }
+    markOffline();
 });
+
+// Rafraîchir les données périodiquement (pour voir les changements de l'autre joueur)
+setInterval(() => {
+    if (currentPlayer) {
+        loadData();
+        updatePresenceUI();
+    }
+}, 3000);
