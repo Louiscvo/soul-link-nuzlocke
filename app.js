@@ -15,13 +15,18 @@ let currentSession = null;
 let currentPlayer = null; // 'sun' ou 'moon'
 let sessionRef = null;
 let currentZone = null;
+let presenceInterval = null;
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
     // Vérifier si Firebase est disponible
     if (typeof firebase !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch(e) {
+            console.log('Firebase non configuré, mode local activé');
+        }
     }
 
     // Vérifier session existante dans localStorage
@@ -71,10 +76,18 @@ function startApp() {
     if (db) {
         sessionRef = db.ref('sessions/' + currentSession);
         setupRealtimeListeners();
+        setupPresence();
+    } else {
+        // Mode local - simuler présence
+        updatePresenceUI();
     }
 
     renderZones();
     loadData();
+
+    // Mettre à jour la présence toutes les 30 secondes
+    presenceInterval = setInterval(updatePresence, 30000);
+    updatePresence();
 }
 
 // Configuration des listeners temps réel
@@ -84,7 +97,67 @@ function setupRealtimeListeners() {
     sessionRef.on('value', (snapshot) => {
         const data = snapshot.val() || {};
         updateUI(data);
+        updatePresenceUI(data.presence);
     });
+}
+
+// Gestion de la présence
+function setupPresence() {
+    if (!sessionRef) return;
+
+    // Marquer comme hors ligne à la déconnexion
+    const presenceRef = sessionRef.child('presence/' + currentPlayer);
+    presenceRef.onDisconnect().set({
+        online: false,
+        lastSeen: firebase.database.ServerValue.TIMESTAMP
+    });
+}
+
+function updatePresence() {
+    const presenceData = {
+        online: true,
+        lastSeen: Date.now()
+    };
+
+    if (sessionRef) {
+        sessionRef.child('presence/' + currentPlayer).set(presenceData);
+    } else {
+        // Mode local
+        const data = JSON.parse(localStorage.getItem('soulLinkData_' + currentSession) || '{}');
+        if (!data.presence) data.presence = {};
+        data.presence[currentPlayer] = presenceData;
+        localStorage.setItem('soulLinkData_' + currentSession, JSON.stringify(data));
+        updatePresenceUI(data.presence);
+    }
+}
+
+function updatePresenceUI(presence = {}) {
+    const sunStatus = document.getElementById('sunStatus');
+    const moonStatus = document.getElementById('moonStatus');
+
+    const now = Date.now();
+    const timeout = 60000; // 60 secondes
+
+    // Sun player
+    if (presence.sun && presence.sun.online && (now - presence.sun.lastSeen) < timeout) {
+        sunStatus.className = 'status-dot online';
+    } else {
+        sunStatus.className = 'status-dot offline';
+    }
+
+    // Moon player
+    if (presence.moon && presence.moon.online && (now - presence.moon.lastSeen) < timeout) {
+        moonStatus.className = 'status-dot online';
+    } else {
+        moonStatus.className = 'status-dot offline';
+    }
+
+    // Highlight current player
+    if (currentPlayer === 'sun') {
+        document.getElementById('sunIndicator').style.boxShadow = '0 0 20px rgba(243, 156, 18, 0.5)';
+    } else if (currentPlayer === 'moon') {
+        document.getElementById('moonIndicator').style.boxShadow = '0 0 20px rgba(155, 89, 182, 0.5)';
+    }
 }
 
 // Générer un ID de session
@@ -109,7 +182,7 @@ function renderZones() {
                 html += '</div>';
             }
             currentIsland = zone.island;
-            html += `<div class="island-section"><h2 class="island-title">${zone.island}</h2>`;
+            html += `<div class="island-section"><h2 class="island-title" style="margin: 20px 0 10px; color: #888; font-size: 1.2rem;">${zone.island}</h2>`;
         }
 
         html += `
@@ -201,11 +274,12 @@ function updateUI(data) {
             if (sunSlot) {
                 const pokemon = POKEMON_DATA.find(p => p.id === zoneData.sun.id);
                 const isDead = zoneData.sun.dead;
+                const nickname = zoneData.sun.nickname || '';
 
                 if (isDead) sunDead++; else sunAlive++;
 
                 sunSlot.className = `player-slot sun ${isDead ? 'dead' : ''} ${zoneData.moon ? 'linked' : ''}`;
-                sunSlot.innerHTML = renderPokemonSlot(pokemon, zoneId, 'sun', isDead, zoneData.moon);
+                sunSlot.innerHTML = renderPokemonSlot(pokemon, zoneId, 'sun', isDead, zoneData.moon, nickname);
             }
         }
 
@@ -214,11 +288,12 @@ function updateUI(data) {
             if (moonSlot) {
                 const pokemon = POKEMON_DATA.find(p => p.id === zoneData.moon.id);
                 const isDead = zoneData.moon.dead;
+                const nickname = zoneData.moon.nickname || '';
 
                 if (isDead) moonDead++; else moonAlive++;
 
                 moonSlot.className = `player-slot moon ${isDead ? 'dead' : ''} ${zoneData.sun ? 'linked' : ''}`;
-                moonSlot.innerHTML = renderPokemonSlot(pokemon, zoneId, 'moon', isDead, zoneData.sun);
+                moonSlot.innerHTML = renderPokemonSlot(pokemon, zoneId, 'moon', isDead, zoneData.sun, nickname);
             }
         }
     });
@@ -228,21 +303,30 @@ function updateUI(data) {
     document.getElementById('sunDead').textContent = sunDead;
     document.getElementById('moonAlive').textContent = moonAlive;
     document.getElementById('moonDead').textContent = moonDead;
+
+    // Mettre à jour la présence
+    if (data.presence) {
+        updatePresenceUI(data.presence);
+    }
 }
 
 // Rendu d'un slot Pokémon
-function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner) {
+function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner, nickname) {
     if (!pokemon) return '';
 
     let html = `
         <div class="pokemon-display">
             <img src="${getPokemonSprite(pokemon.id)}" alt="${pokemon.name}">
             <span class="name">${pokemon.name}</span>
+            <span class="pokemon-nickname">"${nickname}"</span>
     `;
 
-    // Bouton mort seulement pour son propre joueur et si pas déjà mort
+    // Boutons seulement pour son propre joueur
     if (player === currentPlayer && !isDead) {
-        html += `<button class="kill-btn" onclick="killPokemon('${zoneId}', '${player}')">☠ Mort</button>`;
+        html += `
+            <button class="reroll-btn" onclick="rerollNickname('${zoneId}', '${player}')">🎲 Reroll</button>
+            <button class="kill-btn" onclick="killPokemon('${zoneId}', '${player}')">☠ Mort</button>
+        `;
     }
 
     html += '</div>';
@@ -253,6 +337,16 @@ function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner) {
     }
 
     return html;
+}
+
+// Reroll le surnom
+async function rerollNickname(zoneId, player) {
+    const data = await getData();
+
+    if (data.zones && data.zones[zoneId] && data.zones[zoneId][player]) {
+        data.zones[zoneId][player].nickname = getRandomNickname();
+        saveData(data);
+    }
 }
 
 // Ouvrir le modal de sélection
@@ -314,6 +408,7 @@ async function selectPokemon(pokemonId) {
 
     data.zones[currentZone][currentPlayer] = {
         id: pokemonId,
+        nickname: getRandomNickname(),
         dead: false,
         timestamp: Date.now()
     };
@@ -355,5 +450,19 @@ window.onclick = function(event) {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeModal();
+    }
+});
+
+// Nettoyage à la fermeture
+window.addEventListener('beforeunload', () => {
+    if (presenceInterval) {
+        clearInterval(presenceInterval);
+    }
+    // Marquer comme hors ligne
+    if (sessionRef && currentPlayer) {
+        sessionRef.child('presence/' + currentPlayer).update({
+            online: false,
+            lastSeen: Date.now()
+        });
     }
 });

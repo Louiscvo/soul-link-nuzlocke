@@ -454,3 +454,113 @@ header h1 {
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(255,255,255,0.3);
 }
+
+/* Player Indicators - Top Corners */
+.player-indicator {
+    position: fixed;
+    top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.6);
+    padding: 10px 15px;
+    border-radius: 15px;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.sun-indicator {
+    left: 20px;
+    border: 2px solid rgba(243, 156, 18, 0.5);
+}
+
+.moon-indicator {
+    right: 20px;
+    border: 2px solid rgba(155, 89, 182, 0.5);
+}
+
+.trainer-sprite {
+    width: 64px;
+    height: 64px;
+    image-rendering: pixelated;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.player-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+.status-dot.online {
+    background: #2ecc71;
+    box-shadow: 0 0 10px #2ecc71;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.offline {
+    background: #7f8c8d;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Nickname styling */
+.pokemon-nickname {
+    font-size: 0.85rem;
+    color: #f39c12;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+.reroll-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 5px;
+    padding: 3px 8px;
+    color: #fff;
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-top: 5px;
+    transition: all 0.2s;
+}
+
+.reroll-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Responsive for indicators */
+@media (max-width: 768px) {
+    .player-indicator {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        margin: 10px auto;
+        justify-content: center;
+    }
+
+    .sun-indicator, .moon-indicator {
+        position: relative;
+    }
+
+    .container {
+        padding-top: 10px;
+    }
+}

@@ -9,6 +9,27 @@
 </head>
 <body>
     <div class="container">
+        <!-- Player indicators top corners -->
+        <div class="player-indicator sun-indicator" id="sunIndicator">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/sun.png"
+                 onerror="this.src='https://raw.githubusercontent.com/msPokemon/sprites/master/sprites/trainers/30.png'"
+                 alt="Dresseur Soleil" class="trainer-sprite">
+            <div class="player-info">
+                <span class="player-name">Ultra Soleil</span>
+                <span class="status-dot offline" id="sunStatus"></span>
+            </div>
+        </div>
+
+        <div class="player-indicator moon-indicator" id="moonIndicator">
+            <div class="player-info">
+                <span class="player-name">Ultra Lune</span>
+                <span class="status-dot offline" id="moonStatus"></span>
+            </div>
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/moon.png"
+                 onerror="this.src='https://raw.githubusercontent.com/msikma/pokesprite/master/misc/trainer/30.png'"
+                 alt="Dresseur Lune" class="trainer-sprite">
+        </div>
+
         <header>
             <h1>Soul Link Nuzlocke</h1>
             <p class="subtitle">Ultra Soleil & Ultra Lune</p>
@@ -22,7 +43,7 @@
                     <button onclick="joinSession()">Rejoindre</button>
                 </div>
                 <div class="divider">ou</div>
-                <button class="btn-primary" onclick="createSession()">Créer une nouvelle session</button>
+                <button class="btn-primary" onclick="createSession()">Cr&eacute;er une nouvelle session</button>
             </div>
             <div class="player-select" id="playerSelect" style="display:none;">
                 <h3>Choisir ton jeu</h3>
@@ -61,9 +82,9 @@
         <div class="modal" id="pokemonModal">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
-                <h2>Ajouter un Pokémon</h2>
+                <h2>Ajouter un Pok&eacute;mon</h2>
                 <p class="modal-zone" id="modalZone"></p>
-                <input type="text" id="pokemonSearch" placeholder="Rechercher un Pokémon..." oninput="filterPokemon()">
+                <input type="text" id="pokemonSearch" placeholder="Rechercher un Pok&eacute;mon..." oninput="filterPokemon()">
                 <div class="pokemon-grid" id="pokemonGrid"></div>
             </div>
         </div>
@@ -73,6 +94,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="pokemon-data.js"></script>
     <script src="zones-data.js"></script>
+    <script src="nicknames.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
