@@ -15,43 +15,118 @@ let currentPlayer = null;
 let currentZone = null;
 let dataRef = null;
 let presenceRef = null;
+let playersRef = null;
+let deviceId = null;
+
+// Générer un ID unique pour cet appareil (simule l'adresse MAC)
+function getDeviceId() {
+    let id = localStorage.getItem('soulLinkDeviceId');
+    if (!id) {
+        // Générer un ID unique basé sur le temps + random
+        id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('soulLinkDeviceId', id);
+    }
+    return id;
+}
 
 // Initialisation Firebase
 firebase.initializeApp(firebaseConfig);
 db = firebase.database();
 dataRef = db.ref('gameData');
 presenceRef = db.ref('presence');
+playersRef = db.ref('players');
+deviceId = getDeviceId();
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
-    // Vérifier si joueur déjà choisi
-    const savedPlayer = localStorage.getItem('soulLinkPlayer');
-
-    if (savedPlayer) {
-        currentPlayer = savedPlayer;
-        startApp();
-    }
-
     // Écouter les changements de présence
     presenceRef.on('value', (snapshot) => {
         updatePresenceUI(snapshot.val() || {});
     });
+
+    // Vérifier l'état des joueurs
+    checkPlayerStatus();
 });
+
+// Vérifier si ce device a déjà choisi ou si un joueur est déjà pris
+function checkPlayerStatus() {
+    playersRef.once('value').then((snapshot) => {
+        const players = snapshot.val() || {};
+
+        // Vérifier si ce device a déjà un joueur assigné
+        if (players.sun && players.sun.deviceId === deviceId) {
+            currentPlayer = 'sun';
+            localStorage.setItem('soulLinkPlayer', 'sun');
+            startApp();
+            return;
+        }
+        if (players.moon && players.moon.deviceId === deviceId) {
+            currentPlayer = 'moon';
+            localStorage.setItem('soulLinkPlayer', 'moon');
+            startApp();
+            return;
+        }
+
+        // Sinon afficher la sélection avec les options disponibles
+        updatePlayerSelection(players);
+    });
+
+    // Écouter les changements en temps réel
+    playersRef.on('value', (snapshot) => {
+        const players = snapshot.val() || {};
+        if (!currentPlayer) {
+            updatePlayerSelection(players);
+        }
+    });
+}
+
+// Mettre à jour l'affichage de la sélection des joueurs
+function updatePlayerSelection(players) {
+    const sunBtn = document.querySelector('.game-btn.sun');
+    const moonBtn = document.querySelector('.game-btn.moon');
+
+    if (!sunBtn || !moonBtn) return;
+
+    // Sun est pris par quelqu'un d'autre ?
+    if (players.sun && players.sun.deviceId !== deviceId) {
+        sunBtn.classList.add('player-taken');
+        sunBtn.onclick = null;
+    } else {
+        sunBtn.classList.remove('player-taken');
+        sunBtn.onclick = () => selectPlayer('sun');
+    }
+
+    // Moon est pris par quelqu'un d'autre ?
+    if (players.moon && players.moon.deviceId !== deviceId) {
+        moonBtn.classList.add('player-taken');
+        moonBtn.onclick = null;
+    } else {
+        moonBtn.classList.remove('player-taken');
+        moonBtn.onclick = () => selectPlayer('moon');
+    }
+}
 
 // Sélectionner le joueur
 function selectPlayer(player) {
-    currentPlayer = player;
-    localStorage.setItem('soulLinkPlayer', currentPlayer);
-    startApp();
-}
+    // Vérifier que le joueur n'est pas déjà pris
+    playersRef.child(player).once('value').then((snapshot) => {
+        const data = snapshot.val();
 
-// Changer de joueur
-function changePlayer() {
-    markOffline();
-    localStorage.removeItem('soulLinkPlayer');
-    currentPlayer = null;
-    document.getElementById('sessionSetup').style.display = 'block';
-    document.getElementById('mainApp').style.display = 'none';
+        if (data && data.deviceId !== deviceId) {
+            alert('Ce joueur est déjà pris !');
+            return;
+        }
+
+        // Enregistrer ce device comme propriétaire du joueur
+        playersRef.child(player).set({
+            deviceId: deviceId,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            currentPlayer = player;
+            localStorage.setItem('soulLinkPlayer', currentPlayer);
+            startApp();
+        });
+    });
 }
 
 // Démarrer l'application
