@@ -590,14 +590,13 @@ window.addEventListener('beforeunload', () => {
     markOffline();
 });
 
-// Hard refresh - vide le cache et recharge
+// Hard refresh - vide le cache et recharge (garde la sélection de joueur)
 function hardRefresh() {
     if ('caches' in window) {
         caches.keys().then(names => {
             names.forEach(name => caches.delete(name));
         });
     }
-    localStorage.removeItem('soulLinkPlayer');
     location.reload(true);
 }
 
