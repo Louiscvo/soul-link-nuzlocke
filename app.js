@@ -17,6 +17,7 @@ let dataRef = null;
 let presenceRef = null;
 let playersRef = null;
 let deviceId = null;
+let currentGameData = {}; // Pour stocker les données actuelles
 
 // Générer un ID unique pour cet appareil (simule l'adresse MAC)
 function getDeviceId() {
@@ -154,11 +155,11 @@ function startApp() {
     document.getElementById('mainApp').style.display = 'block';
 
     renderZones();
-    renderBattles();
 
     // Écouter les changements en temps réel
     dataRef.on('value', (snapshot) => {
         const data = snapshot.val() || {};
+        currentGameData = data; // Sauvegarder pour les combats
         updateUI(data);
         updateBattlesUI(data.battles);
     });
@@ -237,7 +238,7 @@ function updatePresenceUI(presence) {
     }
 }
 
-// Rendu des zones
+// Rendu des zones (avec combats intégrés)
 function renderZones() {
     const container = document.getElementById('zonesContainer');
     let currentIsland = '';
@@ -252,19 +253,25 @@ function renderZones() {
             html += `<div class="island-section"><h2 class="island-title" style="margin: 20px 0 10px; color: #888; font-size: 1.2rem;">${zone.island}</h2>`;
         }
 
-        html += `
-            <div class="zone-card" data-zone="${zone.id}">
-                <div class="zone-info">
-                    <div class="zone-name">${zone.name}</div>
+        // Si c'est un combat rival
+        if (zone.isBattle) {
+            html += renderBattleCard(zone);
+        } else {
+            // Zone normale
+            html += `
+                <div class="zone-card" data-zone="${zone.id}">
+                    <div class="zone-info">
+                        <div class="zone-name">${zone.name}</div>
+                    </div>
+                    <div class="player-slot sun" id="slot-sun-${zone.id}">
+                        <button class="add-pokemon-btn" onclick="openModal('${zone.id}', 'sun')">+ Ajouter</button>
+                    </div>
+                    <div class="player-slot moon" id="slot-moon-${zone.id}">
+                        <button class="add-pokemon-btn" onclick="openModal('${zone.id}', 'moon')">+ Ajouter</button>
+                    </div>
                 </div>
-                <div class="player-slot sun" id="slot-sun-${zone.id}">
-                    <button class="add-pokemon-btn" onclick="openModal('${zone.id}', 'sun')">+ Ajouter</button>
-                </div>
-                <div class="player-slot moon" id="slot-moon-${zone.id}">
-                    <button class="add-pokemon-btn" onclick="openModal('${zone.id}', 'moon')">+ Ajouter</button>
-                </div>
-            </div>
-        `;
+            `;
+        }
     });
 
     if (currentIsland !== '') {
@@ -272,6 +279,123 @@ function renderZones() {
     }
 
     container.innerHTML = html;
+}
+
+// Rendu d'une carte de combat
+function renderBattleCard(battle) {
+    const isFinal = battle.isFinal;
+    const maxPokemon = parseInt(battle.rules.charAt(0)) || 6;
+
+    let html = `
+        <div class="battle-card ${isFinal ? 'final' : ''}" id="battle-${battle.id}" data-battle="${battle.id}">
+            <div class="battle-header">
+                <div class="battle-name">${battle.name}</div>
+                <div class="battle-rules">🎮 ${battle.rules}</div>
+            </div>
+            <div class="battle-description">${battle.description}</div>
+
+            <div class="battle-teams">
+                <div class="battle-team sun-team">
+                    <div class="team-label">☀️ Équipe Soleil</div>
+                    <div class="team-slots" id="team-sun-${battle.id}">
+                        ${renderTeamSlots(battle.id, 'sun', maxPokemon)}
+                    </div>
+                </div>
+                <div class="battle-vs">VS</div>
+                <div class="battle-team moon-team">
+                    <div class="team-label">🌙 Équipe Lune</div>
+                    <div class="team-slots" id="team-moon-${battle.id}">
+                        ${renderTeamSlots(battle.id, 'moon', maxPokemon)}
+                    </div>
+                </div>
+            </div>
+
+            <div class="battle-result" id="result-${battle.id}">
+                <button class="winner-btn sun" onclick="setWinner('${battle.id}', 'sun')">☀️ Soleil gagne</button>
+                <button class="winner-btn moon" onclick="setWinner('${battle.id}', 'moon')">🌙 Lune gagne</button>
+            </div>
+        </div>
+    `;
+    return html;
+}
+
+// Rendu des slots d'équipe pour un combat
+function renderTeamSlots(battleId, player, maxPokemon) {
+    let html = '';
+    for (let i = 0; i < maxPokemon; i++) {
+        html += `
+            <div class="team-slot" id="team-slot-${battleId}-${player}-${i}">
+                <select class="pokemon-select" onchange="selectBattlePokemon('${battleId}', '${player}', ${i}, this.value)" ${player !== currentPlayer ? 'disabled' : ''}>
+                    <option value="">-- Choisir --</option>
+                </select>
+            </div>
+        `;
+    }
+    return html;
+}
+
+// Obtenir la liste des Pokémon vivants d'un joueur
+function getAlivePokemon(player) {
+    const zones = currentGameData.zones || {};
+    const alivePokemon = [];
+
+    Object.keys(zones).forEach(zoneId => {
+        const zoneData = zones[zoneId];
+        if (zoneData[player] && !zoneData[player].dead) {
+            const pokemon = POKEMON_DATA.find(p => p.id === zoneData[player].id);
+            if (pokemon) {
+                alivePokemon.push({
+                    zoneId: zoneId,
+                    id: zoneData[player].id,
+                    name: pokemon.name,
+                    nickname: zoneData[player].nickname || ''
+                });
+            }
+        }
+    });
+
+    return alivePokemon;
+}
+
+// Mettre à jour les selects des combats avec les Pokémon vivants
+function updateBattleSelects() {
+    const sunPokemon = getAlivePokemon('sun');
+    const moonPokemon = getAlivePokemon('moon');
+
+    ZONES_DATA.filter(z => z.isBattle).forEach(battle => {
+        const maxPokemon = parseInt(battle.rules.charAt(0)) || 6;
+
+        for (let i = 0; i < maxPokemon; i++) {
+            // Sun selects
+            const sunSelect = document.querySelector(`#team-slot-${battle.id}-sun-${i} select`);
+            if (sunSelect) {
+                const currentValue = sunSelect.value;
+                sunSelect.innerHTML = '<option value="">-- Choisir --</option>';
+                sunPokemon.forEach(p => {
+                    sunSelect.innerHTML += `<option value="${p.zoneId}" ${currentValue === p.zoneId ? 'selected' : ''}>${p.name} "${p.nickname}"</option>`;
+                });
+            }
+
+            // Moon selects
+            const moonSelect = document.querySelector(`#team-slot-${battle.id}-moon-${i} select`);
+            if (moonSelect) {
+                const currentValue = moonSelect.value;
+                moonSelect.innerHTML = '<option value="">-- Choisir --</option>';
+                moonPokemon.forEach(p => {
+                    moonSelect.innerHTML += `<option value="${p.zoneId}" ${currentValue === p.zoneId ? 'selected' : ''}>${p.name} "${p.nickname}"</option>`;
+                });
+            }
+        }
+    });
+}
+
+// Sélectionner un Pokémon pour un combat
+function selectBattlePokemon(battleId, player, slot, zoneId) {
+    if (!zoneId) {
+        dataRef.child(`battles/${battleId}/teams/${player}/${slot}`).remove();
+    } else {
+        dataRef.child(`battles/${battleId}/teams/${player}/${slot}`).set(zoneId);
+    }
 }
 
 // Mettre à jour l'interface
@@ -332,6 +456,9 @@ function updateUI(data) {
     document.getElementById('sunDead').textContent = sunDead;
     document.getElementById('moonAlive').textContent = moonAlive;
     document.getElementById('moonDead').textContent = moonDead;
+
+    // Mettre à jour les selects de combat
+    updateBattleSelects();
 }
 
 // Rendu d'un slot Pokémon
@@ -463,63 +590,37 @@ window.addEventListener('beforeunload', () => {
     markOffline();
 });
 
-// Rendu des combats rivaux
-function renderBattles() {
-    const container = document.getElementById('battlesContainer');
-    if (!container) return;
-
-    let html = '';
-
-    RIVAL_BATTLES.forEach(battle => {
-        const isFinal = battle.id === 'battle_final';
-        html += `
-            <div class="battle-card ${isFinal ? 'final' : ''}" id="battle-${battle.id}" data-battle="${battle.id}">
-                <div class="battle-name">${battle.name}</div>
-                <div class="battle-location">📍 ${battle.location}</div>
-                <div class="battle-description">${battle.description}</div>
-                <div class="battle-rules">🎮 ${battle.rules}</div>
-                <div class="battle-result" id="result-${battle.id}">
-                    <button class="winner-btn sun" onclick="setWinner('${battle.id}', 'sun')">☀️ Soleil gagne</button>
-                    <button class="winner-btn moon" onclick="setWinner('${battle.id}', 'moon')">🌙 Lune gagne</button>
-                </div>
-            </div>
-        `;
-    });
-
-    // Score global
-    html += `
-        <div class="battle-score" id="battleScore">
-            <div class="score-item">
-                <div class="score-label">Ultra Soleil</div>
-                <div class="score-value sun" id="sunWins">0</div>
-            </div>
-            <div class="score-item">
-                <div class="score-label">VS</div>
-                <div class="score-value" style="color: #fff;">⚔️</div>
-            </div>
-            <div class="score-item">
-                <div class="score-label">Ultra Lune</div>
-                <div class="score-value moon" id="moonWins">0</div>
-            </div>
-        </div>
-    `;
-
-    container.innerHTML = html;
-}
-
 // Mettre à jour l'UI des combats
 function updateBattlesUI(battles) {
-    if (!battles) return;
+    if (!battles) battles = {};
 
     let sunWins = 0;
     let moonWins = 0;
 
-    Object.keys(battles).forEach(battleId => {
-        const battleData = battles[battleId];
-        const card = document.getElementById(`battle-${battleId}`);
-        const resultDiv = document.getElementById(`result-${battleId}`);
+    ZONES_DATA.filter(z => z.isBattle).forEach(battle => {
+        const battleData = battles[battle.id] || {};
+        const card = document.getElementById(`battle-${battle.id}`);
+        const resultDiv = document.getElementById(`result-${battle.id}`);
 
-        if (card && resultDiv && battleData.winner) {
+        if (!card || !resultDiv) return;
+
+        // Mettre à jour les équipes sélectionnées
+        if (battleData.teams) {
+            const maxPokemon = parseInt(battle.rules.charAt(0)) || 6;
+
+            ['sun', 'moon'].forEach(player => {
+                const teamData = battleData.teams[player] || {};
+                for (let i = 0; i < maxPokemon; i++) {
+                    const select = document.querySelector(`#team-slot-${battle.id}-${player}-${i} select`);
+                    if (select && teamData[i]) {
+                        select.value = teamData[i];
+                    }
+                }
+            });
+        }
+
+        // Gérer le gagnant
+        if (battleData.winner) {
             card.classList.add('completed');
 
             const winnerName = battleData.winner === 'sun' ? '☀️ Ultra Soleil' : '🌙 Ultra Lune';
@@ -527,6 +628,12 @@ function updateBattlesUI(battles) {
 
             if (battleData.winner === 'sun') sunWins++;
             else moonWins++;
+        } else {
+            card.classList.remove('completed');
+            resultDiv.innerHTML = `
+                <button class="winner-btn sun" onclick="setWinner('${battle.id}', 'sun')">☀️ Soleil gagne</button>
+                <button class="winner-btn moon" onclick="setWinner('${battle.id}', 'moon')">🌙 Lune gagne</button>
+            `;
         }
     });
 

@@ -17,6 +17,9 @@ const ZONES_DATA = [
     {id: "trainers_school", name: "École des Dresseurs", island: "Mele-Mele"},
     {id: "hau_oli_shopping", name: "Centre Commercial Ekaeka", island: "Mele-Mele"},
 
+    // ⚔️ COMBAT RIVAL #1 - Après Mele-Mele
+    {id: "battle_1", name: "⚔️ COMBAT RIVAL #1", island: "Mele-Mele", isBattle: true, rules: "3v3", description: "Après l'Épreuve de Rachid"},
+
     // Akala (Île 2)
     {id: "route4", name: "Route 4", island: "Akala"},
     {id: "paniola_town", name: "Ohana", island: "Akala"},
@@ -27,6 +30,10 @@ const ZONES_DATA = [
     {id: "royal_avenue", name: "Avenue Royale", island: "Akala"},
     {id: "route7", name: "Route 7", island: "Akala"},
     {id: "wela_volcano", name: "Volcan Wela", island: "Akala"},
+
+    // ⚔️ COMBAT RIVAL #2 - Après Volcan Wela
+    {id: "battle_2", name: "⚔️ COMBAT RIVAL #2", island: "Akala", isBattle: true, rules: "4v4", description: "Après l'Épreuve de Kiawe"},
+
     {id: "route8", name: "Route 8", island: "Akala"},
     {id: "lush_jungle", name: "Jungle Sombrefeuille", island: "Akala"},
     {id: "dividing_peak", name: "Tunnel Diglett", island: "Akala"},
@@ -38,6 +45,9 @@ const ZONES_DATA = [
     {id: "hano_beach", name: "Plage de Hano", island: "Akala"},
     {id: "hano_resort", name: "Resort de Hano", island: "Akala"},
     {id: "akala_sea", name: "Mer d'Akala", island: "Akala"},
+
+    // ⚔️ COMBAT RIVAL #3 - Avant Paradis Æther
+    {id: "battle_3", name: "⚔️ COMBAT RIVAL #3", island: "Akala", isBattle: true, rules: "5v5", description: "Avant d'infiltrer le Paradis Æther"},
 
     // Ula-Ula (Île 3)
     {id: "route10", name: "Route 10", island: "Ula-Ula"},
@@ -56,6 +66,10 @@ const ZONES_DATA = [
     {id: "ula_ula_meadow", name: "Prairie d'Ula-Ula", island: "Ula-Ula"},
     {id: "route17", name: "Route 17", island: "Ula-Ula"},
     {id: "po_town", name: "Po Town", island: "Ula-Ula"},
+
+    // ⚔️ COMBAT RIVAL #4 - Après Po Town
+    {id: "battle_4", name: "⚔️ COMBAT RIVAL #4", island: "Ula-Ula", isBattle: true, rules: "5v5", description: "Après avoir vaincu Guzma"},
+
     {id: "malie_city", name: "Malie", island: "Ula-Ula"},
     {id: "malie_garden", name: "Jardin de Malie", island: "Ula-Ula"},
     {id: "outer_cape", name: "Cap Extérieur", island: "Ula-Ula"},
@@ -65,6 +79,9 @@ const ZONES_DATA = [
     {id: "ruins_abundance", name: "Ruines de l'Abondance", island: "Ula-Ula"},
     {id: "haina_desert", name: "Désert de Haina", island: "Ula-Ula"},
     {id: "ula_ula_sea", name: "Mer d'Ula-Ula", island: "Ula-Ula"},
+
+    // ⚔️ COMBAT RIVAL #5 - Avant Necrozma
+    {id: "battle_5", name: "⚔️ COMBAT RIVAL #5", island: "Ula-Ula", isBattle: true, rules: "6v6", description: "Avant d'affronter Ultra-Necrozma"},
 
     // Poni (Île 4)
     {id: "seafolk_village", name: "Village Flottant", island: "Poni"},
@@ -80,6 +97,9 @@ const ZONES_DATA = [
     {id: "poni_gauntlet", name: "Dédale de Poni", island: "Poni"},
     {id: "resolution_cave", name: "Grotte Résolution", island: "Poni"},
     {id: "poni_sea", name: "Mer de Poni", island: "Poni"},
+
+    // ⚔️ COMBAT FINAL - Avant la Ligue
+    {id: "battle_final", name: "🏆 COMBAT FINAL", island: "Poni", isBattle: true, rules: "6v6", description: "Le combat ultime avant la Ligue Pokémon !", isFinal: true},
 
     // Ultra Space (Post-game)
     {id: "ultra_space", name: "Ultra-Dimension", island: "Ultra-Espace"},
@@ -109,50 +129,4 @@ const ZONES_DATA = [
 
     // Island Scan
     {id: "island_scan", name: "Island Scan", island: "Spécial"}
-];
-
-// Combats Rivaux obligatoires entre les deux joueurs
-const RIVAL_BATTLES = [
-    {
-        id: "battle_1",
-        name: "Combat Rival #1",
-        location: "Après l'Épreuve de Mele-Mele",
-        description: "Premier affrontement ! Après avoir battu Rachid.",
-        rules: "3v3 - Pas de légendaires"
-    },
-    {
-        id: "battle_2",
-        name: "Combat Rival #2",
-        location: "Après l'Épreuve d'Akala",
-        description: "Combat après avoir battu Kiawe au Volcan Wela.",
-        rules: "4v4 - Pas de légendaires"
-    },
-    {
-        id: "battle_3",
-        name: "Combat Rival #3",
-        location: "Avant le Paradis Æther",
-        description: "Dernier combat avant d'infiltrer la Fondation Æther !",
-        rules: "5v5 - Pas de légendaires"
-    },
-    {
-        id: "battle_4",
-        name: "Combat Rival #4",
-        location: "Après Po Town",
-        description: "Combat après avoir vaincu Guzma à Po Town.",
-        rules: "5v5 - Pas de légendaires"
-    },
-    {
-        id: "battle_5",
-        name: "Combat Rival #5",
-        location: "Avant Necrozma",
-        description: "Combat décisif avant d'affronter Ultra-Necrozma !",
-        rules: "6v6 - Pas de légendaires"
-    },
-    {
-        id: "battle_final",
-        name: "COMBAT FINAL",
-        location: "Avant la Ligue Pokémon",
-        description: "Le combat ultime pour déterminer le vrai Champion d'Alola !",
-        rules: "6v6 - Équipe complète autorisée"
-    }
 ];
