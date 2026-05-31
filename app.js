@@ -18,6 +18,7 @@ let presenceRef = null;
 let playersRef = null;
 let deviceId = null;
 let currentGameData = {}; // Pour stocker les données actuelles
+let unlockedIsland = 1; // Île débloquée (commence à 1 = Mele-Mele)
 
 // Générer un ID unique pour cet appareil (simule l'adresse MAC)
 function getDeviceId() {
@@ -154,12 +155,17 @@ function startApp() {
     document.getElementById('sessionSetup').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
 
-    renderZones();
+    // Écouter le niveau d'île débloquée
+    dataRef.child('unlockedIsland').on('value', (snapshot) => {
+        unlockedIsland = snapshot.val() || 1;
+        renderZones();
+    });
 
     // Écouter les changements en temps réel
     dataRef.on('value', (snapshot) => {
         const data = snapshot.val() || {};
         currentGameData = data; // Sauvegarder pour les combats
+        unlockedIsland = data.unlockedIsland || 1;
         updateUI(data);
         updateBattlesUI(data.battles);
     });
@@ -238,13 +244,22 @@ function updatePresenceUI(presence) {
     }
 }
 
-// Rendu des zones (avec combats intégrés)
+// Rendu des zones (avec combats intégrés) - filtré par île débloquée
 function renderZones() {
     const container = document.getElementById('zonesContainer');
     let currentIsland = '';
     let html = '';
 
-    ZONES_DATA.forEach(zone => {
+    // Filtrer les zones selon l'île débloquée
+    const visibleZones = ZONES_DATA.filter(zone => {
+        // Zones spéciales sans islandNum (Ultra-Espace, Spécial, Pêche) visibles après île 4
+        if (!zone.islandNum) {
+            return unlockedIsland >= 5; // Après combat final
+        }
+        return zone.islandNum <= unlockedIsland;
+    });
+
+    visibleZones.forEach(zone => {
         if (zone.island !== currentIsland) {
             if (currentIsland !== '') {
                 html += '</div>';
@@ -699,10 +714,23 @@ function setWinner(battleId, winner) {
         return;
     }
 
+    // Sauvegarder le gagnant
     dataRef.child(`battles/${battleId}`).set({
         winner: winner,
         timestamp: firebase.database.ServerValue.TIMESTAMP
     });
+
+    // Vérifier si ce combat débloque une nouvelle île
+    const battle = ZONES_DATA.find(z => z.id === battleId);
+    if (battle && battle.unlocksIsland) {
+        // Débloquer l'île suivante
+        dataRef.child('unlockedIsland').set(battle.unlocksIsland);
+    }
+
+    // Combat final débloque les zones spéciales (île 5 = post-game)
+    if (battle && battle.isFinal) {
+        dataRef.child('unlockedIsland').set(5);
+    }
 }
 
 // Reset complet de toutes les données
@@ -714,12 +742,14 @@ function resetAll() {
         return;
     }
 
-    // Supprimer toutes les zones et les combats
+    // Supprimer toutes les zones, combats et remettre l'île à 1
     Promise.all([
         dataRef.child('zones').remove(),
-        dataRef.child('battles').remove()
+        dataRef.child('battles').remove(),
+        dataRef.child('unlockedIsland').set(1)
     ]).then(() => {
-        renderBattles(); // Re-render les combats
+        unlockedIsland = 1;
+        renderZones();
         alert('✅ Toutes les données ont été supprimées !');
     }).catch((error) => {
         alert('Erreur: ' + error.message);

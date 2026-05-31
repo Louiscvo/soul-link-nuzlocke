@@ -1,105 +1,129 @@
 // Zones de capture dans Pokémon Ultra Soleil / Ultra Lune
 const ZONES_DATA = [
     // Mele-Mele (Île 1)
-    {id: "route1", name: "Route 1", island: "Mele-Mele"},
-    {id: "route1_grass", name: "Route 1 (Herbes)", island: "Mele-Mele"},
-    {id: "hauoli_outskirts", name: "Périphérie d'Ekaeka", island: "Mele-Mele"},
-    {id: "hauoli_city", name: "Ekaeka", island: "Mele-Mele"},
-    {id: "route2", name: "Route 2", island: "Mele-Mele"},
-    {id: "hauoli_cemetery", name: "Cimetière d'Ekaeka", island: "Mele-Mele"},
-    {id: "verdant_cavern", name: "Grotte Verdoyante", island: "Mele-Mele"},
-    {id: "route3", name: "Route 3", island: "Mele-Mele"},
-    {id: "melemele_meadow", name: "Prairie de Mele-Mele", island: "Mele-Mele"},
-    {id: "seaward_cave", name: "Grotte Littorale", island: "Mele-Mele"},
-    {id: "kala_bay", name: "Baie de Kala'e", island: "Mele-Mele"},
-    {id: "ten_carat_hill", name: "Colline Clapotis", island: "Mele-Mele"},
-    {id: "melemele_sea", name: "Mer de Mele-Mele", island: "Mele-Mele"},
-    {id: "trainers_school", name: "École des Dresseurs", island: "Mele-Mele"},
-    {id: "hau_oli_shopping", name: "Centre Commercial Ekaeka", island: "Mele-Mele"},
+    {id: "route1", name: "Route 1", island: "Mele-Mele", islandNum: 1},
+    {id: "route1_grass", name: "Route 1 (Herbes)", island: "Mele-Mele", islandNum: 1},
+    {id: "hauoli_outskirts", name: "Périphérie d'Ekaeka", island: "Mele-Mele", islandNum: 1},
+    {id: "hauoli_city", name: "Ekaeka", island: "Mele-Mele", islandNum: 1},
+    {id: "route2", name: "Route 2", island: "Mele-Mele", islandNum: 1},
+    {id: "hauoli_cemetery", name: "Cimetière d'Ekaeka", island: "Mele-Mele", islandNum: 1},
 
-    // ⚔️ COMBAT RIVAL #1 - Après Mele-Mele
-    {id: "battle_1", name: "⚔️ COMBAT RIVAL #1", island: "Mele-Mele", isBattle: true, rules: "3v3", description: "Après l'Épreuve de Rachid"},
+    // ⚔️ COMBAT #1
+    {id: "battle_1", name: "⚔️ COMBAT #1", island: "Mele-Mele", islandNum: 1, isBattle: true, rules: "2v2", description: "Avant la Grotte Verdoyante"},
+
+    {id: "verdant_cavern", name: "Grotte Verdoyante", island: "Mele-Mele", islandNum: 1},
+    {id: "route3", name: "Route 3", island: "Mele-Mele", islandNum: 1},
+    {id: "melemele_meadow", name: "Prairie de Mele-Mele", island: "Mele-Mele", islandNum: 1},
+    {id: "seaward_cave", name: "Grotte Littorale", island: "Mele-Mele", islandNum: 1},
+    {id: "kala_bay", name: "Baie de Kala'e", island: "Mele-Mele", islandNum: 1},
+    {id: "ten_carat_hill", name: "Colline Clapotis", island: "Mele-Mele", islandNum: 1},
+    {id: "melemele_sea", name: "Mer de Mele-Mele", island: "Mele-Mele", islandNum: 1},
+    {id: "trainers_school", name: "École des Dresseurs", island: "Mele-Mele", islandNum: 1},
+    {id: "hau_oli_shopping", name: "Centre Commercial Ekaeka", island: "Mele-Mele", islandNum: 1},
+
+    // ⚔️ COMBAT #2 - Fin Mele-Mele
+    {id: "battle_2", name: "⚔️ COMBAT #2", island: "Mele-Mele", islandNum: 1, isBattle: true, rules: "3v3", description: "Grande Épreuve de Pectorius", unlocksIsland: 2},
 
     // Akala (Île 2)
-    {id: "route4", name: "Route 4", island: "Akala"},
-    {id: "paniola_town", name: "Ohana", island: "Akala"},
-    {id: "paniola_ranch", name: "Ranch Ohana", island: "Akala"},
-    {id: "route5", name: "Route 5", island: "Akala"},
-    {id: "brooklet_hill", name: "Colline Ondula", island: "Akala"},
-    {id: "route6", name: "Route 6", island: "Akala"},
-    {id: "royal_avenue", name: "Avenue Royale", island: "Akala"},
-    {id: "route7", name: "Route 7", island: "Akala"},
-    {id: "wela_volcano", name: "Volcan Wela", island: "Akala"},
+    {id: "route4", name: "Route 4", island: "Akala", islandNum: 2},
+    {id: "paniola_town", name: "Ohana", island: "Akala", islandNum: 2},
+    {id: "paniola_ranch", name: "Ranch Ohana", island: "Akala", islandNum: 2},
+    {id: "route5", name: "Route 5", island: "Akala", islandNum: 2},
+    {id: "brooklet_hill", name: "Colline Ondula", island: "Akala", islandNum: 2},
 
-    // ⚔️ COMBAT RIVAL #2 - Après Volcan Wela
-    {id: "battle_2", name: "⚔️ COMBAT RIVAL #2", island: "Akala", isBattle: true, rules: "4v4", description: "Après l'Épreuve de Kiawe"},
+    // ⚔️ COMBAT #3
+    {id: "battle_3", name: "⚔️ COMBAT #3", island: "Akala", islandNum: 2, isBattle: true, rules: "3v3", description: "Après l'Épreuve de Barbara"},
 
-    {id: "route8", name: "Route 8", island: "Akala"},
-    {id: "lush_jungle", name: "Jungle Sombrefeuille", island: "Akala"},
-    {id: "dividing_peak", name: "Tunnel Diglett", island: "Akala"},
-    {id: "route9", name: "Route 9", island: "Akala"},
-    {id: "konikoni_city", name: "Konikoni", island: "Akala"},
-    {id: "memorial_hill", name: "Colline du Souvenir", island: "Akala"},
-    {id: "akala_outskirts", name: "Périphérie d'Akala", island: "Akala"},
-    {id: "ruins_of_life", name: "Ruines de la Vie", island: "Akala"},
-    {id: "hano_beach", name: "Plage de Hano", island: "Akala"},
-    {id: "hano_resort", name: "Resort de Hano", island: "Akala"},
-    {id: "akala_sea", name: "Mer d'Akala", island: "Akala"},
+    {id: "route6", name: "Route 6", island: "Akala", islandNum: 2},
+    {id: "royal_avenue", name: "Avenue Royale", island: "Akala", islandNum: 2},
+    {id: "route7", name: "Route 7", island: "Akala", islandNum: 2},
+    {id: "wela_volcano", name: "Volcan Wela", island: "Akala", islandNum: 2},
 
-    // ⚔️ COMBAT RIVAL #3 - Avant Paradis Æther
-    {id: "battle_3", name: "⚔️ COMBAT RIVAL #3", island: "Akala", isBattle: true, rules: "5v5", description: "Avant d'infiltrer le Paradis Æther"},
+    // ⚔️ COMBAT #4
+    {id: "battle_4", name: "⚔️ COMBAT #4", island: "Akala", islandNum: 2, isBattle: true, rules: "4v4", description: "Après l'Épreuve de Kiawe"},
+
+    {id: "route8", name: "Route 8", island: "Akala", islandNum: 2},
+    {id: "lush_jungle", name: "Jungle Sombrefeuille", island: "Akala", islandNum: 2},
+    {id: "dividing_peak", name: "Tunnel Diglett", island: "Akala", islandNum: 2},
+    {id: "route9", name: "Route 9", island: "Akala", islandNum: 2},
+    {id: "konikoni_city", name: "Konikoni", island: "Akala", islandNum: 2},
+    {id: "memorial_hill", name: "Colline du Souvenir", island: "Akala", islandNum: 2},
+    {id: "akala_outskirts", name: "Périphérie d'Akala", island: "Akala", islandNum: 2},
+    {id: "ruins_of_life", name: "Ruines de la Vie", island: "Akala", islandNum: 2},
+    {id: "hano_beach", name: "Plage de Hano", island: "Akala", islandNum: 2},
+    {id: "hano_resort", name: "Resort de Hano", island: "Akala", islandNum: 2},
+    {id: "akala_sea", name: "Mer d'Akala", island: "Akala", islandNum: 2},
+
+    // ⚔️ COMBAT #5 - Fin Akala
+    {id: "battle_5", name: "⚔️ COMBAT #5", island: "Akala", islandNum: 2, isBattle: true, rules: "4v4", description: "Grande Épreuve d'Alyxia", unlocksIsland: 3},
 
     // Ula-Ula (Île 3)
-    {id: "route10", name: "Route 10", island: "Ula-Ula"},
-    {id: "mount_hokulani", name: "Mont Hokulani", island: "Ula-Ula"},
-    {id: "route11", name: "Route 11", island: "Ula-Ula"},
-    {id: "route12", name: "Route 12", island: "Ula-Ula"},
-    {id: "secluded_shore", name: "Côte Cachée", island: "Ula-Ula"},
-    {id: "blush_mountain", name: "Mont Ardent", island: "Ula-Ula"},
-    {id: "route13", name: "Route 13", island: "Ula-Ula"},
-    {id: "tapu_village", name: "Village Toko", island: "Ula-Ula"},
-    {id: "route14", name: "Route 14", island: "Ula-Ula"},
-    {id: "thrifty_megamart", name: "Méga Épicerie Abandonnée", island: "Ula-Ula"},
-    {id: "route15", name: "Route 15", island: "Ula-Ula"},
-    {id: "aether_house", name: "Maison Æther", island: "Ula-Ula"},
-    {id: "route16", name: "Route 16", island: "Ula-Ula"},
-    {id: "ula_ula_meadow", name: "Prairie d'Ula-Ula", island: "Ula-Ula"},
-    {id: "route17", name: "Route 17", island: "Ula-Ula"},
-    {id: "po_town", name: "Po Town", island: "Ula-Ula"},
+    {id: "route10", name: "Route 10", island: "Ula-Ula", islandNum: 3},
+    {id: "mount_hokulani", name: "Mont Hokulani", island: "Ula-Ula", islandNum: 3},
+    {id: "route11", name: "Route 11", island: "Ula-Ula", islandNum: 3},
+    {id: "route12", name: "Route 12", island: "Ula-Ula", islandNum: 3},
+    {id: "secluded_shore", name: "Côte Cachée", island: "Ula-Ula", islandNum: 3},
+    {id: "blush_mountain", name: "Mont Ardent", island: "Ula-Ula", islandNum: 3},
 
-    // ⚔️ COMBAT RIVAL #4 - Après Po Town
-    {id: "battle_4", name: "⚔️ COMBAT RIVAL #4", island: "Ula-Ula", isBattle: true, rules: "5v5", description: "Après avoir vaincu Guzma"},
+    // ⚔️ COMBAT #6
+    {id: "battle_6", name: "⚔️ COMBAT #6", island: "Ula-Ula", islandNum: 3, isBattle: true, rules: "4v4", description: "Après l'Épreuve de Chrys"},
 
-    {id: "malie_city", name: "Malie", island: "Ula-Ula"},
-    {id: "malie_garden", name: "Jardin de Malie", island: "Ula-Ula"},
-    {id: "outer_cape", name: "Cap Extérieur", island: "Ula-Ula"},
-    {id: "mount_lanakila", name: "Mont Lanakila", island: "Ula-Ula"},
-    {id: "lake_of_moone", name: "Lac du Croissant (Moon)", island: "Ula-Ula"},
-    {id: "lake_of_sunne", name: "Lac du Soleil (Sun)", island: "Ula-Ula"},
-    {id: "ruins_abundance", name: "Ruines de l'Abondance", island: "Ula-Ula"},
-    {id: "haina_desert", name: "Désert de Haina", island: "Ula-Ula"},
-    {id: "ula_ula_sea", name: "Mer d'Ula-Ula", island: "Ula-Ula"},
+    {id: "route13", name: "Route 13", island: "Ula-Ula", islandNum: 3},
+    {id: "tapu_village", name: "Village Toko", island: "Ula-Ula", islandNum: 3},
+    {id: "route14", name: "Route 14", island: "Ula-Ula", islandNum: 3},
+    {id: "thrifty_megamart", name: "Méga Épicerie Abandonnée", island: "Ula-Ula", islandNum: 3},
 
-    // ⚔️ COMBAT RIVAL #5 - Avant Necrozma
-    {id: "battle_5", name: "⚔️ COMBAT RIVAL #5", island: "Ula-Ula", isBattle: true, rules: "6v6", description: "Avant d'affronter Ultra-Necrozma"},
+    // ⚔️ COMBAT #7
+    {id: "battle_7", name: "⚔️ COMBAT #7", island: "Ula-Ula", islandNum: 3, isBattle: true, rules: "5v5", description: "Après l'Épreuve de Margie"},
+
+    {id: "route15", name: "Route 15", island: "Ula-Ula", islandNum: 3},
+    {id: "aether_house", name: "Maison Æther", island: "Ula-Ula", islandNum: 3},
+    {id: "route16", name: "Route 16", island: "Ula-Ula", islandNum: 3},
+    {id: "ula_ula_meadow", name: "Prairie d'Ula-Ula", island: "Ula-Ula", islandNum: 3},
+    {id: "route17", name: "Route 17", island: "Ula-Ula", islandNum: 3},
+    {id: "po_town", name: "Po Town", island: "Ula-Ula", islandNum: 3},
+
+    // ⚔️ COMBAT #8
+    {id: "battle_8", name: "⚔️ COMBAT #8", island: "Ula-Ula", islandNum: 3, isBattle: true, rules: "5v5", description: "Après avoir vaincu Guzma"},
+
+    {id: "malie_city", name: "Malie", island: "Ula-Ula", islandNum: 3},
+    {id: "malie_garden", name: "Jardin de Malie", island: "Ula-Ula", islandNum: 3},
+    {id: "outer_cape", name: "Cap Extérieur", island: "Ula-Ula", islandNum: 3},
+    {id: "mount_lanakila", name: "Mont Lanakila", island: "Ula-Ula", islandNum: 3},
+    {id: "lake_of_moone", name: "Lac du Croissant (Moon)", island: "Ula-Ula", islandNum: 3},
+    {id: "lake_of_sunne", name: "Lac du Soleil (Sun)", island: "Ula-Ula", islandNum: 3},
+    {id: "ruins_abundance", name: "Ruines de l'Abondance", island: "Ula-Ula", islandNum: 3},
+    {id: "haina_desert", name: "Désert de Haina", island: "Ula-Ula", islandNum: 3},
+    {id: "ula_ula_sea", name: "Mer d'Ula-Ula", island: "Ula-Ula", islandNum: 3},
+
+    // ⚔️ COMBAT #9 - Fin Ula-Ula
+    {id: "battle_9", name: "⚔️ COMBAT #9", island: "Ula-Ula", islandNum: 3, isBattle: true, rules: "5v5", description: "Grande Épreuve d'Aratapec", unlocksIsland: 4},
 
     // Poni (Île 4)
-    {id: "seafolk_village", name: "Village Flottant", island: "Poni"},
-    {id: "poni_wilds", name: "Nature Sauvage de Poni", island: "Poni"},
-    {id: "ancient_poni_path", name: "Chemin du Vieux Poni", island: "Poni"},
-    {id: "poni_breaker_coast", name: "Côte de Poni", island: "Poni"},
-    {id: "ruins_of_hope", name: "Ruines de l'Espoir", island: "Poni"},
-    {id: "exeggutor_island", name: "Île Noadkoko", island: "Poni"},
-    {id: "vast_poni_canyon", name: "Grand Canyon de Poni", island: "Poni"},
-    {id: "poni_grove", name: "Bosquet de Poni", island: "Poni"},
-    {id: "poni_plains", name: "Plaine de Poni", island: "Poni"},
-    {id: "poni_meadow", name: "Prairie de Poni", island: "Poni"},
-    {id: "poni_gauntlet", name: "Dédale de Poni", island: "Poni"},
-    {id: "resolution_cave", name: "Grotte Résolution", island: "Poni"},
-    {id: "poni_sea", name: "Mer de Poni", island: "Poni"},
+    {id: "seafolk_village", name: "Village Flottant", island: "Poni", islandNum: 4},
+    {id: "poni_wilds", name: "Nature Sauvage de Poni", island: "Poni", islandNum: 4},
+    {id: "ancient_poni_path", name: "Chemin du Vieux Poni", island: "Poni", islandNum: 4},
+    {id: "poni_breaker_coast", name: "Côte de Poni", island: "Poni", islandNum: 4},
+    {id: "ruins_of_hope", name: "Ruines de l'Espoir", island: "Poni", islandNum: 4},
+
+    // ⚔️ COMBAT #10
+    {id: "battle_10", name: "⚔️ COMBAT #10", island: "Poni", islandNum: 4, isBattle: true, rules: "5v5", description: "Après les Ruines de l'Espoir"},
+
+    {id: "exeggutor_island", name: "Île Noadkoko", island: "Poni", islandNum: 4},
+    {id: "vast_poni_canyon", name: "Grand Canyon de Poni", island: "Poni", islandNum: 4},
+
+    // ⚔️ COMBAT #11
+    {id: "battle_11", name: "⚔️ COMBAT #11", island: "Poni", islandNum: 4, isBattle: true, rules: "5v5", description: "Après le Grand Canyon de Poni"},
+
+    {id: "poni_grove", name: "Bosquet de Poni", island: "Poni", islandNum: 4},
+    {id: "poni_plains", name: "Plaine de Poni", island: "Poni", islandNum: 4},
+    {id: "poni_meadow", name: "Prairie de Poni", island: "Poni", islandNum: 4},
+    {id: "poni_gauntlet", name: "Dédale de Poni", island: "Poni", islandNum: 4},
+    {id: "resolution_cave", name: "Grotte Résolution", island: "Poni", islandNum: 4},
+    {id: "poni_sea", name: "Mer de Poni", island: "Poni", islandNum: 4},
 
     // ⚔️ COMBAT FINAL - Avant la Ligue
-    {id: "battle_final", name: "🏆 COMBAT FINAL", island: "Poni", isBattle: true, rules: "6v6", description: "Le combat ultime avant la Ligue Pokémon !", isFinal: true},
+    {id: "battle_final", name: "🏆 COMBAT FINAL", island: "Poni", islandNum: 4, isBattle: true, rules: "6v6", description: "Le combat ultime avant la Ligue Pokémon !", isFinal: true},
 
     // Ultra Space (Post-game)
     {id: "ultra_space", name: "Ultra-Dimension", island: "Ultra-Espace"},
