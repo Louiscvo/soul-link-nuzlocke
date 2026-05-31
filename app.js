@@ -50,10 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Vérifier si ce device a déjà choisi ou si un joueur est déjà pris
 function checkPlayerStatus() {
+    // D'abord vérifier le localStorage pour une reconnexion rapide
+    const savedPlayer = localStorage.getItem('soulLinkPlayer');
+
     playersRef.once('value').then((snapshot) => {
         const players = snapshot.val() || {};
 
-        // Vérifier si ce device a déjà un joueur assigné
+        // Vérifier si ce device a déjà un joueur assigné dans Firebase
         if (players.sun && players.sun.deviceId === deviceId) {
             currentPlayer = 'sun';
             localStorage.setItem('soulLinkPlayer', 'sun');
@@ -65,6 +68,22 @@ function checkPlayerStatus() {
             localStorage.setItem('soulLinkPlayer', 'moon');
             startApp();
             return;
+        }
+
+        // Si on avait un joueur sauvegardé mais pas dans Firebase, le réenregistrer
+        if (savedPlayer && (savedPlayer === 'sun' || savedPlayer === 'moon')) {
+            // Vérifier que ce joueur n'est pas pris par quelqu'un d'autre
+            if (!players[savedPlayer] || players[savedPlayer].deviceId === deviceId) {
+                // Réenregistrer ce device
+                playersRef.child(savedPlayer).set({
+                    deviceId: deviceId,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    currentPlayer = savedPlayer;
+                    startApp();
+                });
+                return;
+            }
         }
 
         // Sinon afficher la sélection avec les options disponibles
@@ -441,3 +460,20 @@ document.addEventListener('keydown', (e) => {
 window.addEventListener('beforeunload', () => {
     markOffline();
 });
+
+// Reset complet de toutes les données
+function resetAll() {
+    if (!confirm('⚠️ ATTENTION: Supprimer TOUS les Pokémon et recommencer à zéro ?')) {
+        return;
+    }
+    if (!confirm('Es-tu vraiment sûr ? Cette action est irréversible !')) {
+        return;
+    }
+
+    // Supprimer toutes les zones de Pokémon
+    dataRef.child('zones').remove().then(() => {
+        alert('✅ Toutes les données ont été supprimées !');
+    }).catch((error) => {
+        alert('Erreur: ' + error.message);
+    });
+}
