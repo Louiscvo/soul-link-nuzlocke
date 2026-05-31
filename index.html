@@ -61,9 +61,24 @@
                     <span class="stat-value" id="moonAlive">0</span> vivants
                     <span class="stat-dead" id="moonDead">0</span> morts
                 </div>
-                <button class="reset-btn" onclick="resetAll()">🗑️ Reset données</button>
-                <button class="reset-players-btn" onclick="resetPlayers()">👥 Reset joueurs</button>
-                <button class="refresh-btn" onclick="hardRefresh()">🔄 Refresh</button>
+                <button class="admin-btn" onclick="openAdminPanel()">⚙️ Admin</button>
+            </div>
+
+            <!-- Panel Admin -->
+            <div class="admin-panel" id="adminPanel" style="display:none;">
+                <div class="admin-content">
+                    <span class="close" onclick="closeAdminPanel()">&times;</span>
+                    <h2>🔐 Panel Admin</h2>
+                    <div class="admin-login" id="adminLogin">
+                        <input type="password" id="adminCode" placeholder="Code admin..." maxlength="10">
+                        <button onclick="checkAdminCode()">Valider</button>
+                    </div>
+                    <div class="admin-actions" id="adminActions" style="display:none;">
+                        <button class="reset-btn" onclick="resetAll()">🗑️ Reset toutes les données</button>
+                        <button class="reset-players-btn" onclick="resetPlayers()">👥 Reset joueurs</button>
+                        <button class="refresh-btn" onclick="hardRefresh()">🔄 Refresh cache</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Score des combats rivaux -->
