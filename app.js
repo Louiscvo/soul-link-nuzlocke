@@ -154,11 +154,13 @@ function startApp() {
     document.getElementById('mainApp').style.display = 'block';
 
     renderZones();
+    renderBattles();
 
     // Écouter les changements en temps réel
     dataRef.on('value', (snapshot) => {
         const data = snapshot.val() || {};
         updateUI(data);
+        updateBattlesUI(data.battles);
     });
 
     // Gérer la présence
@@ -461,17 +463,107 @@ window.addEventListener('beforeunload', () => {
     markOffline();
 });
 
+// Rendu des combats rivaux
+function renderBattles() {
+    const container = document.getElementById('battlesContainer');
+    if (!container) return;
+
+    let html = '';
+
+    RIVAL_BATTLES.forEach(battle => {
+        const isFinal = battle.id === 'battle_final';
+        html += `
+            <div class="battle-card ${isFinal ? 'final' : ''}" id="battle-${battle.id}" data-battle="${battle.id}">
+                <div class="battle-name">${battle.name}</div>
+                <div class="battle-location">📍 ${battle.location}</div>
+                <div class="battle-description">${battle.description}</div>
+                <div class="battle-rules">🎮 ${battle.rules}</div>
+                <div class="battle-result" id="result-${battle.id}">
+                    <button class="winner-btn sun" onclick="setWinner('${battle.id}', 'sun')">☀️ Soleil gagne</button>
+                    <button class="winner-btn moon" onclick="setWinner('${battle.id}', 'moon')">🌙 Lune gagne</button>
+                </div>
+            </div>
+        `;
+    });
+
+    // Score global
+    html += `
+        <div class="battle-score" id="battleScore">
+            <div class="score-item">
+                <div class="score-label">Ultra Soleil</div>
+                <div class="score-value sun" id="sunWins">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">VS</div>
+                <div class="score-value" style="color: #fff;">⚔️</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Ultra Lune</div>
+                <div class="score-value moon" id="moonWins">0</div>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// Mettre à jour l'UI des combats
+function updateBattlesUI(battles) {
+    if (!battles) return;
+
+    let sunWins = 0;
+    let moonWins = 0;
+
+    Object.keys(battles).forEach(battleId => {
+        const battleData = battles[battleId];
+        const card = document.getElementById(`battle-${battleId}`);
+        const resultDiv = document.getElementById(`result-${battleId}`);
+
+        if (card && resultDiv && battleData.winner) {
+            card.classList.add('completed');
+
+            const winnerName = battleData.winner === 'sun' ? '☀️ Ultra Soleil' : '🌙 Ultra Lune';
+            resultDiv.innerHTML = `<div class="winner-display ${battleData.winner}">🏆 Vainqueur: ${winnerName}</div>`;
+
+            if (battleData.winner === 'sun') sunWins++;
+            else moonWins++;
+        }
+    });
+
+    // Mettre à jour le score
+    const sunWinsEl = document.getElementById('sunWins');
+    const moonWinsEl = document.getElementById('moonWins');
+    if (sunWinsEl) sunWinsEl.textContent = sunWins;
+    if (moonWinsEl) moonWinsEl.textContent = moonWins;
+}
+
+// Définir le gagnant d'un combat
+function setWinner(battleId, winner) {
+    if (!confirm(`Confirmer la victoire de Ultra ${winner === 'sun' ? 'Soleil' : 'Lune'} ?`)) {
+        return;
+    }
+
+    dataRef.child(`battles/${battleId}`).set({
+        winner: winner,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+}
+
 // Reset complet de toutes les données
 function resetAll() {
-    if (!confirm('⚠️ ATTENTION: Supprimer TOUS les Pokémon et recommencer à zéro ?')) {
+    if (!confirm('⚠️ ATTENTION: Supprimer TOUS les Pokémon et combats pour recommencer à zéro ?')) {
         return;
     }
     if (!confirm('Es-tu vraiment sûr ? Cette action est irréversible !')) {
         return;
     }
 
-    // Supprimer toutes les zones de Pokémon
-    dataRef.child('zones').remove().then(() => {
+    // Supprimer toutes les zones et les combats
+    Promise.all([
+        dataRef.child('zones').remove(),
+        dataRef.child('battles').remove()
+    ]).then(() => {
+        renderBattles(); // Re-render les combats
         alert('✅ Toutes les données ont été supprimées !');
     }).catch((error) => {
         alert('Erreur: ' + error.message);

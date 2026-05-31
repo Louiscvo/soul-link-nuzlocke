@@ -604,3 +604,207 @@ header h1 {
         padding-top: 10px;
     }
 }
+
+/* Rival Battles Section */
+.rival-battles-section {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(155, 89, 182, 0.2));
+    border: 2px solid rgba(231, 76, 60, 0.5);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    background: linear-gradient(90deg, #e74c3c, #9b59b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: #888;
+    margin-bottom: 20px;
+}
+
+.battles-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.battle-card {
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.battle-card:hover {
+    border-color: rgba(231, 76, 60, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(231, 76, 60, 0.2);
+}
+
+.battle-card.completed {
+    border-color: #2ecc71;
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.battle-card.completed::after {
+    content: "✓ TERMINÉ";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #2ecc71;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.battle-card.final {
+    border: 2px solid gold;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.1));
+}
+
+.battle-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #e74c3c;
+}
+
+.battle-card.final .battle-name {
+    color: gold;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.battle-location {
+    font-size: 0.9rem;
+    color: #f39c12;
+    margin-bottom: 8px;
+}
+
+.battle-description {
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+.battle-rules {
+    display: inline-block;
+    background: rgba(155, 89, 182, 0.3);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #bb8fce;
+    margin-bottom: 15px;
+}
+
+.battle-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.winner-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.winner-btn.sun {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: #fff;
+}
+
+.winner-btn.moon {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: #fff;
+}
+
+.winner-btn:hover {
+    transform: scale(1.05);
+}
+
+.winner-btn.selected {
+    box-shadow: 0 0 15px currentColor;
+}
+
+.winner-display {
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.winner-display.sun {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: #fff;
+}
+
+.winner-display.moon {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: #fff;
+}
+
+/* Battle Score */
+.battle-score {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+.score-item {
+    text-align: center;
+}
+
+.score-label {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.score-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.score-value.sun { color: #f39c12; }
+.score-value.moon { color: #9b59b6; }
+
+/* Reset button style */
+.reset-btn {
+    background: rgba(231, 76, 60, 0.2);
+    border: 1px solid #e74c3c;
+    border-radius: 8px;
+    padding: 8px 15px;
+    color: #e74c3c;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.reset-btn:hover {
+    background: #e74c3c;
+    color: #fff;
+}

@@ -110,3 +110,49 @@ const ZONES_DATA = [
     // Island Scan
     {id: "island_scan", name: "Island Scan", island: "Spécial"}
 ];
+
+// Combats Rivaux obligatoires entre les deux joueurs
+const RIVAL_BATTLES = [
+    {
+        id: "battle_1",
+        name: "Combat Rival #1",
+        location: "Après l'Épreuve de Mele-Mele",
+        description: "Premier affrontement ! Après avoir battu Rachid.",
+        rules: "3v3 - Pas de légendaires"
+    },
+    {
+        id: "battle_2",
+        name: "Combat Rival #2",
+        location: "Après l'Épreuve d'Akala",
+        description: "Combat après avoir battu Kiawe au Volcan Wela.",
+        rules: "4v4 - Pas de légendaires"
+    },
+    {
+        id: "battle_3",
+        name: "Combat Rival #3",
+        location: "Avant le Paradis Æther",
+        description: "Dernier combat avant d'infiltrer la Fondation Æther !",
+        rules: "5v5 - Pas de légendaires"
+    },
+    {
+        id: "battle_4",
+        name: "Combat Rival #4",
+        location: "Après Po Town",
+        description: "Combat après avoir vaincu Guzma à Po Town.",
+        rules: "5v5 - Pas de légendaires"
+    },
+    {
+        id: "battle_5",
+        name: "Combat Rival #5",
+        location: "Avant Necrozma",
+        description: "Combat décisif avant d'affronter Ultra-Necrozma !",
+        rules: "6v6 - Pas de légendaires"
+    },
+    {
+        id: "battle_final",
+        name: "COMBAT FINAL",
+        location: "Avant la Ligue Pokémon",
+        description: "Le combat ultime pour déterminer le vrai Champion d'Alola !",
+        rules: "6v6 - Équipe complète autorisée"
+    }
+];
