@@ -868,3 +868,19 @@ header h1 {
     background: #3498db;
     color: #fff;
 }
+
+.reset-players-btn {
+    background: rgba(243, 156, 18, 0.2);
+    border: 1px solid #f39c12;
+    border-radius: 8px;
+    padding: 8px 15px;
+    color: #f39c12;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.reset-players-btn:hover {
+    background: #f39c12;
+    color: #fff;
+}

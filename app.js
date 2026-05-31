@@ -600,6 +600,21 @@ function hardRefresh() {
     location.reload(true);
 }
 
+// Reset les joueurs (libère sun et moon pour que quelqu'un d'autre puisse choisir)
+function resetPlayers() {
+    if (!confirm('⚠️ Libérer les deux joueurs ? Chacun devra rechoisir son jeu.')) {
+        return;
+    }
+
+    // Supprimer les assignations de joueurs
+    playersRef.remove().then(() => {
+        // Supprimer aussi du localStorage local
+        localStorage.removeItem('soulLinkPlayer');
+        alert('✅ Joueurs réinitialisés ! Rechargement...');
+        location.reload(true);
+    });
+}
+
 // Mettre à jour l'UI des combats
 function updateBattlesUI(battles) {
     if (!battles) battles = {};
