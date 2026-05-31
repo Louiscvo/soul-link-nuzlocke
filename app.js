@@ -590,6 +590,17 @@ window.addEventListener('beforeunload', () => {
     markOffline();
 });
 
+// Hard refresh - vide le cache et recharge
+function hardRefresh() {
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+        });
+    }
+    localStorage.removeItem('soulLinkPlayer');
+    location.reload(true);
+}
+
 // Mettre à jour l'UI des combats
 function updateBattlesUI(battles) {
     if (!battles) battles = {};

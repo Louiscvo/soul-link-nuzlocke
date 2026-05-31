@@ -852,3 +852,19 @@ header h1 {
     background: #e74c3c;
     color: #fff;
 }
+
+.refresh-btn {
+    background: rgba(52, 152, 219, 0.2);
+    border: 1px solid #3498db;
+    border-radius: 8px;
+    padding: 8px 15px;
+    color: #3498db;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.refresh-btn:hover {
+    background: #3498db;
+    color: #fff;
+}
