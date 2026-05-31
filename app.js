@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
     checkPlayerStatus();
 });
 
+// Limite d'appareils par joueur
+const MAX_DEVICES_PER_PLAYER = 2;
+
 // Vérifier si ce device a déjà choisi ou si un joueur est déjà pris
 function checkPlayerStatus() {
     // D'abord vérifier le localStorage pour une reconnexion rapide
@@ -59,13 +62,13 @@ function checkPlayerStatus() {
         const players = snapshot.val() || {};
 
         // Vérifier si ce device a déjà un joueur assigné dans Firebase
-        if (players.sun && players.sun.deviceId === deviceId) {
+        if (players.sun && players.sun.devices && players.sun.devices[deviceId]) {
             currentPlayer = 'sun';
             localStorage.setItem('soulLinkPlayer', 'sun');
             startApp();
             return;
         }
-        if (players.moon && players.moon.deviceId === deviceId) {
+        if (players.moon && players.moon.devices && players.moon.devices[deviceId]) {
             currentPlayer = 'moon';
             localStorage.setItem('soulLinkPlayer', 'moon');
             startApp();
@@ -74,11 +77,14 @@ function checkPlayerStatus() {
 
         // Si on avait un joueur sauvegardé mais pas dans Firebase, le réenregistrer
         if (savedPlayer && (savedPlayer === 'sun' || savedPlayer === 'moon')) {
-            // Vérifier que ce joueur n'est pas pris par quelqu'un d'autre
-            if (!players[savedPlayer] || players[savedPlayer].deviceId === deviceId) {
+            const playerData = players[savedPlayer];
+            const deviceCount = playerData && playerData.devices ? Object.keys(playerData.devices).length : 0;
+            const isMyDevice = playerData && playerData.devices && playerData.devices[deviceId];
+
+            // Vérifier qu'il y a de la place ou que c'est déjà mon device
+            if (!playerData || isMyDevice || deviceCount < MAX_DEVICES_PER_PLAYER) {
                 // Réenregistrer ce device
-                playersRef.child(savedPlayer).set({
-                    deviceId: deviceId,
+                playersRef.child(`${savedPlayer}/devices/${deviceId}`).set({
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 }).then(() => {
                     currentPlayer = savedPlayer;
@@ -108,8 +114,11 @@ function updatePlayerSelection(players) {
 
     if (!sunBtn || !moonBtn) return;
 
-    // Sun est pris par quelqu'un d'autre ?
-    if (players.sun && players.sun.deviceId !== deviceId) {
+    // Sun est plein (2 appareils) et je n'en fais pas partie ?
+    const sunDevices = players.sun && players.sun.devices ? Object.keys(players.sun.devices) : [];
+    const sunFull = sunDevices.length >= MAX_DEVICES_PER_PLAYER && !sunDevices.includes(deviceId);
+
+    if (sunFull) {
         sunBtn.classList.add('player-taken');
         sunBtn.onclick = null;
     } else {
@@ -117,8 +126,11 @@ function updatePlayerSelection(players) {
         sunBtn.onclick = () => selectPlayer('sun');
     }
 
-    // Moon est pris par quelqu'un d'autre ?
-    if (players.moon && players.moon.deviceId !== deviceId) {
+    // Moon est plein (2 appareils) et je n'en fais pas partie ?
+    const moonDevices = players.moon && players.moon.devices ? Object.keys(players.moon.devices) : [];
+    const moonFull = moonDevices.length >= MAX_DEVICES_PER_PLAYER && !moonDevices.includes(deviceId);
+
+    if (moonFull) {
         moonBtn.classList.add('player-taken');
         moonBtn.onclick = null;
     } else {
@@ -129,18 +141,19 @@ function updatePlayerSelection(players) {
 
 // Sélectionner le joueur
 function selectPlayer(player) {
-    // Vérifier que le joueur n'est pas déjà pris
+    // Vérifier que le joueur n'est pas déjà plein
     playersRef.child(player).once('value').then((snapshot) => {
         const data = snapshot.val();
+        const devices = data && data.devices ? Object.keys(data.devices) : [];
 
-        if (data && data.deviceId !== deviceId) {
-            alert('Ce joueur est déjà pris !');
+        // Vérifier si c'est déjà mon device ou s'il y a de la place
+        if (devices.length >= MAX_DEVICES_PER_PLAYER && !devices.includes(deviceId)) {
+            alert('Ce joueur a déjà 2 appareils enregistrés !');
             return;
         }
 
-        // Enregistrer ce device comme propriétaire du joueur
-        playersRef.child(player).set({
-            deviceId: deviceId,
+        // Enregistrer ce device pour ce joueur
+        playersRef.child(`${player}/devices/${deviceId}`).set({
             timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(() => {
             currentPlayer = player;
@@ -649,6 +662,7 @@ function resetPlayers() {
     playersRef.remove().then(() => {
         // Supprimer aussi du localStorage local
         localStorage.removeItem('soulLinkPlayer');
+        localStorage.removeItem('soulLinkDeviceId');
         alert('✅ Joueurs réinitialisés ! Rechargement...');
         location.reload(true);
     });
