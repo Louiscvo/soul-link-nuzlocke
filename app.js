@@ -456,11 +456,13 @@ function updateUI(data) {
                 const pokemon = POKEMON_DATA.find(p => p.id === zoneData.sun.id);
                 const isDead = zoneData.sun.dead;
                 const nickname = zoneData.sun.nickname || '';
+                const deathCount = zoneData.sun.deathCount || 0;
+                const fled = zoneData.sun.fled || false;
 
-                if (isDead) sunDead++; else sunAlive++;
+                if (isDead || fled) sunDead++; else sunAlive++;
 
-                sunSlot.className = `player-slot sun ${isDead ? 'dead' : ''} ${zoneData.moon ? 'linked' : ''}`;
-                sunSlot.innerHTML = renderPokemonSlot(pokemon, zoneId, 'sun', isDead, zoneData.moon, nickname);
+                sunSlot.className = `player-slot sun ${isDead ? 'dead' : ''} ${fled ? 'fled' : ''} ${zoneData.moon ? 'linked' : ''}`;
+                sunSlot.innerHTML = renderPokemonSlot(pokemon, zoneId, 'sun', isDead, zoneData.moon, nickname, deathCount, fled);
             }
         }
 
@@ -470,11 +472,13 @@ function updateUI(data) {
                 const pokemon = POKEMON_DATA.find(p => p.id === zoneData.moon.id);
                 const isDead = zoneData.moon.dead;
                 const nickname = zoneData.moon.nickname || '';
+                const deathCount = zoneData.moon.deathCount || 0;
+                const fled = zoneData.moon.fled || false;
 
-                if (isDead) moonDead++; else moonAlive++;
+                if (isDead || fled) moonDead++; else moonAlive++;
 
-                moonSlot.className = `player-slot moon ${isDead ? 'dead' : ''} ${zoneData.sun ? 'linked' : ''}`;
-                moonSlot.innerHTML = renderPokemonSlot(pokemon, zoneId, 'moon', isDead, zoneData.sun, nickname);
+                moonSlot.className = `player-slot moon ${isDead ? 'dead' : ''} ${fled ? 'fled' : ''} ${zoneData.sun ? 'linked' : ''}`;
+                moonSlot.innerHTML = renderPokemonSlot(pokemon, zoneId, 'moon', isDead, zoneData.sun, nickname, deathCount, fled);
             }
         }
     });
@@ -490,21 +494,35 @@ function updateUI(data) {
 }
 
 // Rendu d'un slot Pokémon
-function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner, nickname) {
+function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner, nickname, deathCount, fled) {
     if (!pokemon) return '';
 
+    deathCount = deathCount || 0;
+    const lives = 2 - deathCount;
+
     let html = `
-        <div class="pokemon-display">
+        <div class="pokemon-display ${fled ? 'fled' : ''}">
             <img src="${getPokemonSprite(pokemon.id)}" alt="${pokemon.name}">
             <span class="name">${pokemon.name}</span>
             <span class="pokemon-nickname">"${nickname}"</span>
     `;
 
-    // Boutons seulement pour son propre joueur et si pas mort
-    if (player === currentPlayer && !isDead) {
+    // Afficher les vies restantes (si pas mort et pas enfui)
+    if (!isDead && !fled) {
+        html += `<span class="lives">❤️ ${lives}/2</span>`;
+    }
+
+    // Si enfui
+    if (fled) {
+        html += `<span class="fled-indicator">💨 Enfui</span>`;
+    }
+
+    // Boutons seulement pour son propre joueur et si pas mort et pas enfui
+    if (player === currentPlayer && !isDead && !fled) {
         html += `
             <button class="reroll-btn" onclick="rerollNickname('${zoneId}', '${player}')">🎲 Reroll</button>
             <button class="kill-btn" onclick="killPokemon('${zoneId}', '${player}')">☠ Mort</button>
+            <button class="flee-btn" onclick="fleePokemon('${zoneId}', '${player}')">💨 Enfui</button>
         `;
     }
 
@@ -578,24 +596,55 @@ function selectPokemon(pokemonId) {
         id: pokemonId,
         nickname: getRandomNickname(),
         dead: false,
+        deathCount: 0,
+        fled: false,
         timestamp: firebase.database.ServerValue.TIMESTAMP
     });
 
     closeModal();
 }
 
-// Marquer un Pokémon comme mort (Soul Link)
+// Marquer un Pokémon comme mort (Soul Link avec 2 vies)
 function killPokemon(zoneId, player) {
-    if (!confirm('Confirmer la mort de ce Pokemon ? Son partenaire Soul Link mourra aussi !')) {
+    dataRef.child(`zones/${zoneId}`).once('value').then((snapshot) => {
+        const zoneData = snapshot.val() || {};
+        const sunDeaths = (zoneData.sun && zoneData.sun.deathCount) || 0;
+        const moonDeaths = (zoneData.moon && zoneData.moon.deathCount) || 0;
+
+        const newSunDeaths = sunDeaths + 1;
+        const newMoonDeaths = moonDeaths + 1;
+
+        if (newSunDeaths >= 2 || newMoonDeaths >= 2) {
+            if (!confirm('⚠️ C\'est la 2ème mort ! Les deux Pokémon seront définitivement morts. Confirmer ?')) {
+                return;
+            }
+        } else {
+            if (!confirm('1ère mort ! Les deux Pokémon perdent une vie. Confirmer ?')) {
+                return;
+            }
+        }
+
+        const updates = {};
+        updates[`zones/${zoneId}/sun/deathCount`] = newSunDeaths;
+        updates[`zones/${zoneId}/moon/deathCount`] = newMoonDeaths;
+
+        // Vraiment mort après 2 morts
+        if (newSunDeaths >= 2) updates[`zones/${zoneId}/sun/dead`] = true;
+        if (newMoonDeaths >= 2) updates[`zones/${zoneId}/moon/dead`] = true;
+
+        dataRef.update(updates);
+    });
+}
+
+// Marquer un Pokémon comme enfui
+function fleePokemon(zoneId, player) {
+    if (!confirm('Ce Pokémon s\'est enfui ? Il sera perdu pour cette zone.')) {
         return;
     }
 
-    // Marquer les deux comme morts (Soul Link)
-    const updates = {};
-    updates[`zones/${zoneId}/sun/dead`] = true;
-    updates[`zones/${zoneId}/moon/dead`] = true;
-
-    dataRef.update(updates);
+    dataRef.child(`zones/${zoneId}/${player}`).update({
+        fled: true
+    });
 }
 
 // Fermer modal si clic en dehors

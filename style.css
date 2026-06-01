@@ -963,3 +963,55 @@ header h1 {
     padding: 15px;
     font-size: 1rem;
 }
+
+/* Lives indicator */
+.lives {
+    font-size: 0.8rem;
+    color: #e74c3c;
+    margin-top: 3px;
+}
+
+/* Flee button */
+.flee-btn {
+    background: #3498db;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 15px;
+    color: #fff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-top: 5px;
+    transition: background 0.3s;
+}
+
+.flee-btn:hover {
+    background: #2980b9;
+}
+
+/* Fled pokemon */
+.player-slot.fled {
+    opacity: 0.5;
+    background: rgba(52, 152, 219, 0.2);
+}
+
+.player-slot.fled::after {
+    content: "ENFUI";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3498db;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.fled-indicator {
+    font-size: 0.85rem;
+    color: #3498db;
+    font-weight: 600;
+}
+
+.pokemon-display.fled img {
+    filter: grayscale(50%);
+}
