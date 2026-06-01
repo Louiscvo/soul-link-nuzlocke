@@ -664,30 +664,6 @@ window.addEventListener('beforeunload', () => {
     markOffline();
 });
 
-// Admin Panel
-const ADMIN_CODE = '123';
-
-function openAdminPanel() {
-    document.getElementById('adminPanel').style.display = 'block';
-    document.getElementById('adminCode').value = '';
-    document.getElementById('adminLogin').style.display = 'block';
-    document.getElementById('adminActions').style.display = 'none';
-}
-
-function closeAdminPanel() {
-    document.getElementById('adminPanel').style.display = 'none';
-}
-
-function checkAdminCode() {
-    const code = document.getElementById('adminCode').value;
-    if (code === ADMIN_CODE) {
-        document.getElementById('adminLogin').style.display = 'none';
-        document.getElementById('adminActions').style.display = 'flex';
-    } else {
-        alert('❌ Code incorrect !');
-    }
-}
-
 // Hard refresh - vide le cache et recharge (garde la sélection de joueur)
 function hardRefresh() {
     if ('caches' in window) {
