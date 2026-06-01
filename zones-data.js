@@ -6,7 +6,6 @@ const ZONES_DATA = [
     // ═══════════════════════════════════════════════════════════════
     {id: "starter", name: "Starter", island: "Mele-Mele", islandNum: 1},
     {id: "iki_town", name: "Lili'i", island: "Mele-Mele", islandNum: 1},
-    {id: "mahalo_trail", name: "Sentier de Mahalo", island: "Mele-Mele", islandNum: 1},
     {id: "hauoli_outskirts", name: "Abords d'Ekaeka", island: "Mele-Mele", islandNum: 1},
     {id: "route1", name: "Route 1", island: "Mele-Mele", islandNum: 1},
     {id: "hauoli_city", name: "Ekaeka", island: "Mele-Mele", islandNum: 1},
