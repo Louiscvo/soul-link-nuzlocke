@@ -20,6 +20,87 @@ let deviceId = null;
 let currentGameData = {}; // Pour stocker les données actuelles
 let unlockedIsland = 1; // Île débloquée (commence à 1 = Mele-Mele)
 
+// Sons
+const SOUNDS = {
+    death: new Audio('https://www.myinstants.com/media/sounds/pokemon-faint.mp3'),
+    flee: new Audio('https://www.myinstants.com/media/sounds/pokemon-run-away.mp3'),
+    victory: new Audio('https://www.myinstants.com/media/sounds/pokemon-victory-pokemon-gold-silver.mp3')
+};
+
+// Précharger les sons
+Object.values(SOUNDS).forEach(sound => {
+    sound.volume = 0.5;
+    sound.load();
+});
+
+// Fonction pour jouer un son
+function playSound(soundName) {
+    if (SOUNDS[soundName]) {
+        SOUNDS[soundName].currentTime = 0;
+        SOUNDS[soundName].play().catch(() => {}); // Ignore les erreurs autoplay
+    }
+}
+
+// Fonction pour créer des confettis
+function createConfetti(color) {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    document.body.appendChild(container);
+
+    const colors = color === 'sun'
+        ? ['#f39c12', '#e67e22', '#f1c40f', '#ff9500']
+        : ['#9b59b6', '#8e44ad', '#a569bd', '#bb8fce'];
+
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 2 + 's';
+        confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        container.appendChild(confetti);
+    }
+
+    setTimeout(() => container.remove(), 5000);
+}
+
+// Animation de mort
+function playDeathAnimation(zoneId) {
+    const sunSlot = document.getElementById(`slot-sun-${zoneId}`);
+    const moonSlot = document.getElementById(`slot-moon-${zoneId}`);
+
+    if (sunSlot) sunSlot.classList.add('death-animation');
+    if (moonSlot) moonSlot.classList.add('death-animation');
+
+    playSound('death');
+
+    setTimeout(() => {
+        if (sunSlot) sunSlot.classList.remove('death-animation');
+        if (moonSlot) moonSlot.classList.remove('death-animation');
+    }, 1000);
+}
+
+// Animation d'enfui
+function playFleeAnimation(zoneId, player) {
+    const slot = document.getElementById(`slot-${player}-${zoneId}`);
+    if (slot) {
+        slot.classList.add('flee-animation');
+        playSound('flee');
+        setTimeout(() => slot.classList.remove('flee-animation'), 1000);
+    }
+}
+
+// Animation de victoire
+function playVictoryAnimation(winner) {
+    const indicator = document.getElementById(`${winner}Indicator`);
+    if (indicator) {
+        indicator.classList.add('victory-animation');
+        playSound('victory');
+        createConfetti(winner);
+        setTimeout(() => indicator.classList.remove('victory-animation'), 3000);
+    }
+}
+
 // Générer un ID unique pour cet appareil (simule l'adresse MAC)
 function getDeviceId() {
     let id = localStorage.getItem('soulLinkDeviceId');
@@ -621,6 +702,9 @@ function killPokemon(zoneId, player) {
             }
         }
 
+        // Animation de mort
+        playDeathAnimation(zoneId);
+
         const updates = {};
         updates[`zones/${zoneId}/sun/deathCount`] = newSunDeaths;
         updates[`zones/${zoneId}/moon/deathCount`] = newMoonDeaths;
@@ -638,6 +722,9 @@ function fleePokemon(zoneId, player) {
     if (!confirm('Ce Pokémon s\'est enfui ? Il sera perdu pour cette zone.')) {
         return;
     }
+
+    // Animation d'enfui
+    playFleeAnimation(zoneId, player);
 
     dataRef.child(`zones/${zoneId}/${player}`).update({
         fled: true
@@ -749,6 +836,9 @@ function setWinner(battleId, winner) {
     if (!confirm(`Confirmer la victoire de Ultra ${winner === 'sun' ? 'Soleil' : 'Lune'} ?`)) {
         return;
     }
+
+    // Animation de victoire
+    playVictoryAnimation(winner);
 
     // Sauvegarder le gagnant
     dataRef.child(`battles/${battleId}`).set({
