@@ -498,7 +498,7 @@ function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner, nickname
     if (!pokemon) return '';
 
     deathCount = deathCount || 0;
-    const lives = 2 - deathCount;
+    const lives = 3 - deathCount;
 
     let html = `
         <div class="pokemon-display ${fled ? 'fled' : ''}">
@@ -509,7 +509,7 @@ function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner, nickname
 
     // Afficher les vies restantes (si pas mort et pas enfui)
     if (!isDead && !fled) {
-        html += `<span class="lives">❤️ ${lives}/2</span>`;
+        html += `<span class="lives">❤️ ${lives}/3</span>`;
     }
 
     // Si enfui
@@ -604,7 +604,7 @@ function selectPokemon(pokemonId) {
     closeModal();
 }
 
-// Marquer un Pokémon comme mort (Soul Link avec 2 vies)
+// Marquer un Pokémon comme mort (Soul Link avec 3 vies)
 function killPokemon(zoneId, player) {
     dataRef.child(`zones/${zoneId}`).once('value').then((snapshot) => {
         const zoneData = snapshot.val() || {};
@@ -614,12 +614,9 @@ function killPokemon(zoneId, player) {
         const newSunDeaths = sunDeaths + 1;
         const newMoonDeaths = moonDeaths + 1;
 
-        if (newSunDeaths >= 2 || newMoonDeaths >= 2) {
-            if (!confirm('⚠️ C\'est la 2ème mort ! Les deux Pokémon seront définitivement morts. Confirmer ?')) {
-                return;
-            }
-        } else {
-            if (!confirm('1ère mort ! Les deux Pokémon perdent une vie. Confirmer ?')) {
+        // Confirmation seulement pour la 3ème mort (mort définitive)
+        if (newSunDeaths >= 3 || newMoonDeaths >= 3) {
+            if (!confirm('⚠️ C\'est la 3ème mort ! Les deux Pokémon seront définitivement morts. Confirmer ?')) {
                 return;
             }
         }
@@ -628,9 +625,9 @@ function killPokemon(zoneId, player) {
         updates[`zones/${zoneId}/sun/deathCount`] = newSunDeaths;
         updates[`zones/${zoneId}/moon/deathCount`] = newMoonDeaths;
 
-        // Vraiment mort après 2 morts
-        if (newSunDeaths >= 2) updates[`zones/${zoneId}/sun/dead`] = true;
-        if (newMoonDeaths >= 2) updates[`zones/${zoneId}/moon/dead`] = true;
+        // Vraiment mort après 3 morts
+        if (newSunDeaths >= 3) updates[`zones/${zoneId}/sun/dead`] = true;
+        if (newMoonDeaths >= 3) updates[`zones/${zoneId}/moon/dead`] = true;
 
         dataRef.update(updates);
     });
