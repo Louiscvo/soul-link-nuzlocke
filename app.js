@@ -763,16 +763,11 @@ function hardRefresh() {
 
 // Reset les joueurs (libère sun et moon pour que quelqu'un d'autre puisse choisir)
 function resetPlayers() {
-    if (!confirm('⚠️ Libérer les deux joueurs ? Chacun devra rechoisir son jeu.')) {
-        return;
-    }
-
     // Supprimer les assignations de joueurs
     playersRef.remove().then(() => {
         // Supprimer aussi du localStorage local
         localStorage.removeItem('soulLinkPlayer');
         localStorage.removeItem('soulLinkDeviceId');
-        alert('✅ Joueurs réinitialisés ! Rechargement...');
         location.reload(true);
     });
 }
@@ -861,13 +856,6 @@ function setWinner(battleId, winner) {
 
 // Reset complet de toutes les données
 function resetAll() {
-    if (!confirm('⚠️ ATTENTION: Supprimer TOUS les Pokémon et combats pour recommencer à zéro ?')) {
-        return;
-    }
-    if (!confirm('Es-tu vraiment sûr ? Cette action est irréversible !')) {
-        return;
-    }
-
     // Supprimer toutes les zones, combats et remettre l'île à 1
     Promise.all([
         dataRef.child('zones').remove(),
@@ -876,8 +864,5 @@ function resetAll() {
     ]).then(() => {
         unlockedIsland = 1;
         renderZones();
-        alert('✅ Toutes les données ont été supprimées !');
-    }).catch((error) => {
-        alert('Erreur: ' + error.message);
     });
 }
