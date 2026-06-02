@@ -866,3 +866,19 @@ function resetAll() {
         renderZones();
     });
 }
+
+// Débloquer l'île suivante manuellement
+function unlockNextIsland() {
+    const islandNames = ['', 'Mele-Mele', 'Akala', 'Ula-Ula', 'Poni', 'Post-game'];
+    const nextIsland = Math.min(unlockedIsland + 1, 5);
+
+    if (unlockedIsland >= 5) {
+        alert('Toutes les îles sont déjà débloquées !');
+        return;
+    }
+
+    dataRef.child('unlockedIsland').set(nextIsland).then(() => {
+        unlockedIsland = nextIsland;
+        renderZones();
+    });
+}

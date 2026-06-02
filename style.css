@@ -837,6 +837,22 @@ header h1 {
 }
 
 /* Reset button style */
+.unlock-btn {
+    background: rgba(46, 204, 113, 0.2);
+    border: 1px solid #2ecc71;
+    border-radius: 8px;
+    padding: 8px 15px;
+    color: #2ecc71;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.unlock-btn:hover {
+    background: #2ecc71;
+    color: #fff;
+}
+
 .reset-btn {
     background: rgba(231, 76, 60, 0.2);
     border: 1px solid #e74c3c;
