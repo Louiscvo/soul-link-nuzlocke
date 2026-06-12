@@ -351,7 +351,32 @@ function renderBattleCard(battle) {
             </div>
             <div class="battle-description">${battle.description}</div>
 
-            <!-- Tournoi complet: 3 matchs + Finale -->
+            <!-- Sélection des équipes -->
+            <div class="battle-teams-section">
+                <div class="team-title">📋 Équipes pour ce combat</div>
+                <div class="teams-grid">
+                    <div class="team-column louis">
+                        <div class="team-header">🌞 Louis</div>
+                        <div class="team-selects" id="team-louis-${battle.id}">
+                            ${renderTeamSelects(battle.id, 'louis', maxPokemon)}
+                        </div>
+                    </div>
+                    <div class="team-column louka">
+                        <div class="team-header">🌞 Louka</div>
+                        <div class="team-selects" id="team-louka-${battle.id}">
+                            ${renderTeamSelects(battle.id, 'louka', maxPokemon)}
+                        </div>
+                    </div>
+                    <div class="team-column thibault">
+                        <div class="team-header">🌙 Thibault</div>
+                        <div class="team-selects" id="team-thibault-${battle.id}">
+                            ${renderTeamSelects(battle.id, 'thibault', maxPokemon)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tournoi: 3 matchs + Finale -->
             <div class="battle-bracket-full">
                 <!-- PHASE DE POULES: 3 matchs -->
                 <div class="pool-phase">
@@ -427,6 +452,30 @@ function renderBattleCard(battle) {
         </div>
     `;
     return html;
+}
+
+// Rendu des selects d'équipe pour un joueur
+function renderTeamSelects(battleId, player, maxPokemon) {
+    let html = '';
+    for (let i = 0; i < maxPokemon; i++) {
+        html += `
+            <select class="team-pokemon-select" id="team-${battleId}-${player}-${i}"
+                    onchange="selectTeamPokemon('${battleId}', '${player}', ${i}, this.value)"
+                    ${player !== currentPlayer ? 'disabled' : ''}>
+                <option value="">Slot ${i + 1}</option>
+            </select>
+        `;
+    }
+    return html;
+}
+
+// Sélectionner un Pokémon pour l'équipe
+function selectTeamPokemon(battleId, player, slot, zoneId) {
+    if (!zoneId) {
+        dataRef.child(`battles/${battleId}/teams/${player}/${slot}`).remove();
+    } else {
+        dataRef.child(`battles/${battleId}/teams/${player}/${slot}`).set(zoneId);
+    }
 }
 
 // Définir le gagnant d'un match de poule
@@ -523,10 +572,37 @@ function getAlivePokemon(player) {
     return alivePokemon;
 }
 
-// Mettre à jour l'affichage des combats (pas de selects, juste l'UI)
+// Mettre à jour les selects d'équipe avec les Pokémon vivants
 function updateBattleSelects() {
-    // Cette fonction est appelée mais on n'a plus de selects Pokemon
-    // On garde pour compatibilité
+    const pokemonByPlayer = {};
+    PLAYERS.forEach(p => {
+        pokemonByPlayer[p] = getAlivePokemon(p);
+    });
+
+    ZONES_DATA.filter(z => z.isBattle).forEach(battle => {
+        const maxPokemon = parseInt(battle.rules.charAt(0)) || 6;
+        const battleData = (currentGameData.battles && currentGameData.battles[battle.id]) || {};
+        const teams = battleData.teams || {};
+
+        PLAYERS.forEach(player => {
+            const playerTeam = teams[player] || {};
+            const pokemons = pokemonByPlayer[player];
+
+            for (let i = 0; i < maxPokemon; i++) {
+                const select = document.getElementById(`team-${battle.id}-${player}-${i}`);
+                if (select) {
+                    const currentValue = playerTeam[i] || '';
+                    select.innerHTML = `<option value="">Slot ${i + 1}</option>`;
+                    pokemons.forEach(p => {
+                        const pokemon = POKEMON_DATA.find(pk => pk.id === p.id);
+                        const name = pokemon ? pokemon.name : 'Pokemon';
+                        select.innerHTML += `<option value="${p.zoneId}" ${currentValue === p.zoneId ? 'selected' : ''}>${name} "${p.nickname}"</option>`;
+                    });
+                    select.disabled = player !== currentPlayer;
+                }
+            }
+        });
+    });
 }
 
 // Mettre à jour l'interface
