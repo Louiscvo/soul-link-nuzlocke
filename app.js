@@ -607,7 +607,8 @@ function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner, nickname
 
     if (player === currentPlayer && !isDead && !fled) {
         html += `
-            <button class="reroll-btn" onclick="rerollNickname('${zoneId}', '${player}')">🎲 Reroll</button>
+            <button class="edit-btn" onclick="editNickname('${zoneId}', '${player}')">✏️ Modifier</button>
+            <button class="reroll-btn" onclick="rerollNickname('${zoneId}', '${player}')">🎲 Random</button>
             <button class="kill-btn" onclick="killPokemon('${zoneId}', '${player}')">☠ Mort</button>
             <button class="flee-btn" onclick="fleePokemon('${zoneId}', '${player}')">💨 Enfui</button>
         `;
@@ -624,6 +625,23 @@ function renderPokemonSlot(pokemon, zoneId, player, isDead, hasPartner, nickname
 
 function rerollNickname(zoneId, player) {
     dataRef.child(`zones/${zoneId}/${player}/nickname`).set(getRandomNickname());
+}
+
+// Modifier manuellement le surnom d'un Pokémon
+function editNickname(zoneId, player) {
+    if (player !== currentPlayer) {
+        alert('Tu ne peux modifier que tes propres Pokémon !');
+        return;
+    }
+
+    dataRef.child(`zones/${zoneId}/${player}/nickname`).once('value').then(snap => {
+        const currentNickname = snap.val() || '';
+        const newNickname = prompt('Nouveau surnom:', currentNickname);
+
+        if (newNickname !== null && newNickname.trim() !== '') {
+            dataRef.child(`zones/${zoneId}/${player}/nickname`).set(newNickname.trim());
+        }
+    });
 }
 
 function openModal(zoneId, player) {

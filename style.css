@@ -424,7 +424,7 @@ header h1 {
     filter: grayscale(50%);
 }
 
-.reroll-btn, .kill-btn, .flee-btn {
+.edit-btn, .reroll-btn, .kill-btn, .flee-btn {
     border: none;
     border-radius: 5px;
     padding: 3px 8px;
@@ -433,6 +433,14 @@ header h1 {
     cursor: pointer;
     margin-top: 3px;
     transition: all 0.2s;
+}
+
+.edit-btn {
+    background: #2ecc71;
+}
+
+.edit-btn:hover {
+    background: #27ae60;
 }
 
 .reroll-btn {
