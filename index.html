@@ -3,76 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soul Link Nuzlocke - Ultra Sun/Moon</title>
+    <title>Soul Link Nuzlocke - 3 Joueurs</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <!-- Player indicators top corners -->
-        <div class="player-indicator sun-indicator" id="sunIndicator">
-            <img src="https://archives.bulbagarden.net/media/upload/a/a5/Spr_SM_Elio.png"
-                 onerror="this.src='https://play.pokemonshowdown.com/sprites/trainers/elio.png'"
-                 alt="Sacha" class="trainer-sprite">
-            <div class="player-info">
-                <span class="player-name">Ultra Soleil</span>
-                <span class="status-dot offline" id="sunStatus"></span>
+        <!-- Player indicators top -->
+        <div class="players-indicators">
+            <div class="player-indicator louis-indicator" id="louisIndicator">
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/elio.png" alt="Louis" class="trainer-sprite">
+                <div class="player-info">
+                    <span class="player-name">Ultra Sun (Louis)</span>
+                    <span class="status-dot offline" id="louisStatus"></span>
+                </div>
             </div>
-        </div>
 
-        <div class="player-indicator moon-indicator" id="moonIndicator">
-            <div class="player-info">
-                <span class="player-name">Ultra Lune</span>
-                <span class="status-dot offline" id="moonStatus"></span>
+            <div class="player-indicator louka-indicator" id="loukaIndicator">
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/red-gen7.png" alt="Louka" class="trainer-sprite">
+                <div class="player-info">
+                    <span class="player-name">Ultra Sun (Louka)</span>
+                    <span class="status-dot offline" id="loukaStatus"></span>
+                </div>
             </div>
-            <img src="https://archives.bulbagarden.net/media/upload/e/e1/Spr_SM_Lillie.png"
-                 onerror="this.src='https://play.pokemonshowdown.com/sprites/trainers/lillie.png'"
-                 alt="Lilie" class="trainer-sprite">
+
+            <div class="player-indicator thibault-indicator" id="thibaultIndicator">
+                <img src="https://play.pokemonshowdown.com/sprites/trainers/selene.png" alt="Thibault" class="trainer-sprite">
+                <div class="player-info">
+                    <span class="player-name">Ultra Moon (Thibault)</span>
+                    <span class="status-dot offline" id="thibaultStatus"></span>
+                </div>
+            </div>
         </div>
 
         <header>
             <h1>Soul Link Nuzlocke</h1>
-            <p class="subtitle">Ultra Soleil & Ultra Lune</p>
+            <p class="subtitle">Louis & Louka (Ultra Sun) vs Thibault (Ultra Moon)</p>
         </header>
 
         <div class="session-setup" id="sessionSetup">
             <h2>Choisis ton jeu</h2>
             <div class="player-select">
-                <button class="game-btn sun" onclick="selectPlayer('sun')">
+                <button class="game-btn louis" onclick="selectPlayer('louis')">
                     <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/791.png" alt="Solgaleo">
-                    Ultra Soleil
+                    Ultra Sun (Louis)
                 </button>
-                <button class="game-btn moon" onclick="selectPlayer('moon')">
+                <button class="game-btn louka" onclick="selectPlayer('louka')">
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/791.png" alt="Solgaleo">
+                    Ultra Sun (Louka)
+                </button>
+                <button class="game-btn thibault" onclick="selectPlayer('thibault')">
                     <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/792.png" alt="Lunala">
-                    Ultra Lune
+                    Ultra Moon (Thibault)
                 </button>
             </div>
         </div>
 
         <main id="mainApp" style="display:none;">
             <div class="stats-bar">
-                <div class="stat sun-stat">
-                    <span class="stat-label">Ultra Soleil:</span>
-                    <span class="stat-value" id="sunAlive">0</span> vivants
-                    <span class="stat-dead" id="sunDead">0</span> morts
+                <div class="stat louis-stat">
+                    <span class="stat-label">Louis:</span>
+                    <span class="stat-value" id="louisAlive">0</span> vivants
+                    <span class="stat-dead" id="louisDead">0</span> morts
                 </div>
-                <div class="stat moon-stat">
-                    <span class="stat-label">Ultra Lune:</span>
-                    <span class="stat-value" id="moonAlive">0</span> vivants
-                    <span class="stat-dead" id="moonDead">0</span> morts
+                <div class="stat louka-stat">
+                    <span class="stat-label">Louka:</span>
+                    <span class="stat-value" id="loukaAlive">0</span> vivants
+                    <span class="stat-dead" id="loukaDead">0</span> morts
                 </div>
-                <button class="unlock-btn" onclick="unlockNextIsland()">🏝️ Débloquer île suivante</button>
+                <div class="stat thibault-stat">
+                    <span class="stat-label">Thibault:</span>
+                    <span class="stat-value" id="thibaultAlive">0</span> vivants
+                    <span class="stat-dead" id="thibaultDead">0</span> morts
+                </div>
                 <button class="reset-btn" onclick="resetAll()">🗑️ Reset données</button>
                 <button class="reset-players-btn" onclick="resetPlayers()">👥 Reset joueurs</button>
                 <button class="refresh-btn" onclick="hardRefresh()">🔄 Refresh</button>
             </div>
 
-            <!-- Score des combats rivaux -->
+            <!-- Score des combats -->
             <div class="rival-score-bar" id="rivalScoreBar">
-                <span class="score-title">⚔️ Score Rivaux:</span>
-                <span class="score-sun">☀️ <span id="sunWins">0</span></span>
-                <span class="score-vs">-</span>
-                <span class="score-moon"><span id="moonWins">0</span> 🌙</span>
+                <span class="score-title">⚔️ Score:</span>
+                <span class="score-louis">🌞 Louis: <span id="louisWins">0</span></span>
+                <span class="score-vs">|</span>
+                <span class="score-louka">🌞 Louka: <span id="loukaWins">0</span></span>
+                <span class="score-vs">|</span>
+                <span class="score-thibault">🌙 Thibault: <span id="thibaultWins">0</span></span>
             </div>
 
             <div class="zones-container" id="zonesContainer"></div>
