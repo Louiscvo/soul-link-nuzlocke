@@ -540,165 +540,222 @@ header h1 {
     margin-bottom: 15px;
 }
 
-/* Bracket System */
-.battle-bracket {
+/* Tournoi complet - 3 matchs + finale */
+.battle-bracket-full {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 20px;
     margin: 15px 0;
 }
 
-.bracket-round {
+/* Phase de poules */
+.pool-phase {
     background: rgba(0,0,0,0.2);
     border-radius: 12px;
     padding: 15px;
-}
-
-.semi-final {
     border-left: 3px solid #e67e22;
 }
 
-.final-round {
-    border-left: 3px solid gold;
-}
-
-.bracket-title {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 12px;
+.pool-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 15px;
     text-align: center;
+    color: #e67e22;
 }
 
-.bracket-match {
+.pool-matches {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
-.bracket-matchup {
+.pool-match {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 12px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    justify-content: space-between;
     flex-wrap: wrap;
-}
-
-.player-select-bracket {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    font-size: 0.85rem;
-    cursor: pointer;
-}
-
-.player-select-bracket option {
-    background: #1a1a2e;
-    color: #fff;
-}
-
-.vs-bracket {
-    font-weight: 700;
-    color: #e74c3c;
-    font-size: 0.9rem;
-}
-
-.finalist {
-    padding: 8px 15px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.85rem;
-}
-
-.finalist.louis { background: rgba(243, 156, 18, 0.3); color: #f39c12; }
-.finalist.louka { background: rgba(230, 126, 34, 0.3); color: #e67e22; }
-.finalist.thibault { background: rgba(155, 89, 182, 0.3); color: #9b59b6; }
-
-.bracket-teams {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
-.team-slots-mini {
-    background: rgba(0,0,0,0.2);
-    border-radius: 8px;
-    padding: 8px;
-}
-
-.team-mini-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    justify-content: center;
-}
-
-.team-slot-mini {
-    flex: 1;
-    min-width: 60px;
-    max-width: 80px;
-}
-
-.pokemon-select-mini {
-    width: 100%;
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    font-size: 0.7rem;
-    cursor: pointer;
-}
-
-.pokemon-select-mini:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.pokemon-select-mini option {
-    background: #1a1a2e;
-    color: #fff;
-}
-
-.bracket-winner-btns {
-    display: flex;
-    justify-content: space-around;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.winner-mini-btn {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff;
+.pool-label {
     font-weight: 600;
     font-size: 0.8rem;
+    color: #888;
+    min-width: 60px;
+}
+
+.pool-players {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+}
+
+.pool-player {
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.pool-player.louis { background: rgba(243, 156, 18, 0.3); color: #f39c12; }
+.pool-player.louka { background: rgba(230, 126, 34, 0.3); color: #e67e22; }
+.pool-player.thibault { background: rgba(155, 89, 182, 0.3); color: #9b59b6; }
+
+.vs-small {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.pool-winner-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.pool-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.75rem;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.winner-mini-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 3px 15px rgba(0,0,0,0.3);
+.pool-btn.louis { background: #f39c12; color: #fff; }
+.pool-btn.louka { background: #e67e22; color: #fff; }
+.pool-btn.thibault { background: #9b59b6; color: #fff; }
+
+.pool-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
 }
 
-.winner-mini-btn.final-btn {
-    background: linear-gradient(135deg, #ffd700, #ff8c00);
-    color: #000;
-}
-
-.match-winner {
+.pool-winner {
+    padding: 6px 15px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.8rem;
     text-align: center;
-    padding: 10px;
-    background: rgba(46, 204, 113, 0.2);
+}
+
+.pool-winner.louis { background: rgba(243, 156, 18, 0.3); color: #f39c12; }
+.pool-winner.louka { background: rgba(230, 126, 34, 0.3); color: #e67e22; }
+.pool-winner.thibault { background: rgba(155, 89, 182, 0.3); color: #9b59b6; }
+
+/* Tableau des scores */
+.pool-standings {
+    margin-top: 15px;
+    background: rgba(0,0,0,0.2);
     border-radius: 8px;
-    color: #2ecc71;
+    padding: 10px;
+}
+
+.standing-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 5px;
     font-weight: 600;
 }
+
+.standing-row.louis { background: rgba(243, 156, 18, 0.2); color: #f39c12; }
+.standing-row.louka { background: rgba(230, 126, 34, 0.2); color: #e67e22; }
+.standing-row.thibault { background: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+
+.standing-row .wins {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+/* Phase finale */
+.final-phase {
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    padding: 15px;
+    border-left: 3px solid gold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+}
+
+.final-phase.active {
+    opacity: 1;
+}
+
+.final-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: gold;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.final-matchup {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.finalist {
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.finalist.louis { background: rgba(243, 156, 18, 0.4); color: #f39c12; }
+.finalist.louka { background: rgba(230, 126, 34, 0.4); color: #e67e22; }
+.finalist.thibault { background: rgba(155, 89, 182, 0.4); color: #9b59b6; }
+
+.vs-final {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: gold;
+}
+
+.final-btns {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.final-winner-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.final-winner-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+}
+
+.final-winner-btn.louis { background: linear-gradient(135deg, #f39c12, #d68910); color: #fff; }
+.final-winner-btn.louka { background: linear-gradient(135deg, #e67e22, #ca6f1e); color: #fff; }
+.final-winner-btn.thibault { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; }
 
 .battle-final-result {
     margin-top: 15px;
@@ -983,8 +1040,13 @@ header h1 {
         padding-bottom: 10px;
     }
 
-    .battle-bracket {
+    .battle-bracket-full {
         grid-template-columns: 1fr;
+    }
+
+    .pool-match {
+        flex-direction: column;
+        text-align: center;
     }
 }
 

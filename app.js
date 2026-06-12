@@ -338,7 +338,7 @@ function renderZones() {
     container.innerHTML = html;
 }
 
-// Rendu d'une carte de combat avec arborescence (3 joueurs)
+// Rendu d'une carte de combat avec tournoi complet (3 joueurs)
 function renderBattleCard(battle) {
     const isFinal = battle.isFinal;
     const maxPokemon = parseInt(battle.rules.charAt(0)) || 6;
@@ -351,63 +351,74 @@ function renderBattleCard(battle) {
             </div>
             <div class="battle-description">${battle.description}</div>
 
-            <!-- Arborescence: Match 1 (2 joueurs), puis Finale (gagnant vs 3ème) -->
-            <div class="battle-bracket">
-                <!-- MATCH 1: Semi-finale -->
-                <div class="bracket-round semi-final">
-                    <div class="bracket-title">🥊 Match 1</div>
-                    <div class="bracket-match" id="match1-${battle.id}">
-                        <div class="bracket-matchup">
-                            <select class="player-select-bracket" id="match1-player1-${battle.id}" onchange="updateMatch1('${battle.id}')">
-                                <option value="">-- Joueur 1 --</option>
-                                <option value="louis">🌞 Louis</option>
-                                <option value="louka">🌞 Louka</option>
-                                <option value="thibault">🌙 Thibault</option>
-                            </select>
-                            <span class="vs-bracket">VS</span>
-                            <select class="player-select-bracket" id="match1-player2-${battle.id}" onchange="updateMatch1('${battle.id}')">
-                                <option value="">-- Joueur 2 --</option>
-                                <option value="louis">🌞 Louis</option>
-                                <option value="louka">🌞 Louka</option>
-                                <option value="thibault">🌙 Thibault</option>
-                            </select>
-                        </div>
-                        <div class="bracket-teams">
-                            <div class="team-slots-mini" id="team-match1-p1-${battle.id}">
-                                ${renderTeamSlotsMini(battle.id, 'match1-p1', maxPokemon)}
+            <!-- Tournoi complet: 3 matchs + Finale -->
+            <div class="battle-bracket-full">
+                <!-- PHASE DE POULES: 3 matchs -->
+                <div class="pool-phase">
+                    <div class="pool-title">📊 Phase de poules</div>
+                    <div class="pool-matches">
+                        <!-- Match 1: Louis vs Louka -->
+                        <div class="pool-match" id="pool1-${battle.id}">
+                            <span class="pool-label">Match 1</span>
+                            <div class="pool-players">
+                                <span class="pool-player louis">🌞 Louis</span>
+                                <span class="vs-small">vs</span>
+                                <span class="pool-player louka">🌞 Louka</span>
                             </div>
-                            <div class="team-slots-mini" id="team-match1-p2-${battle.id}">
-                                ${renderTeamSlotsMini(battle.id, 'match1-p2', maxPokemon)}
+                            <div class="pool-winner-btns" id="pool1-btns-${battle.id}">
+                                <button class="pool-btn louis" onclick="setPoolWinner('${battle.id}', 1, 'louis')">Louis</button>
+                                <button class="pool-btn louka" onclick="setPoolWinner('${battle.id}', 1, 'louka')">Louka</button>
                             </div>
                         </div>
-                        <div class="bracket-winner-btns" id="winner1-btns-${battle.id}">
-                            <button class="winner-mini-btn" id="win1-p1-${battle.id}" onclick="setMatch1Winner('${battle.id}', 1)">⬆️ Gagne</button>
-                            <button class="winner-mini-btn" id="win1-p2-${battle.id}" onclick="setMatch1Winner('${battle.id}', 2)">⬆️ Gagne</button>
+
+                        <!-- Match 2: Louka vs Thibault -->
+                        <div class="pool-match" id="pool2-${battle.id}">
+                            <span class="pool-label">Match 2</span>
+                            <div class="pool-players">
+                                <span class="pool-player louka">🌞 Louka</span>
+                                <span class="vs-small">vs</span>
+                                <span class="pool-player thibault">🌙 Thibault</span>
+                            </div>
+                            <div class="pool-winner-btns" id="pool2-btns-${battle.id}">
+                                <button class="pool-btn louka" onclick="setPoolWinner('${battle.id}', 2, 'louka')">Louka</button>
+                                <button class="pool-btn thibault" onclick="setPoolWinner('${battle.id}', 2, 'thibault')">Thibault</button>
+                            </div>
                         </div>
+
+                        <!-- Match 3: Louis vs Thibault -->
+                        <div class="pool-match" id="pool3-${battle.id}">
+                            <span class="pool-label">Match 3</span>
+                            <div class="pool-players">
+                                <span class="pool-player louis">🌞 Louis</span>
+                                <span class="vs-small">vs</span>
+                                <span class="pool-player thibault">🌙 Thibault</span>
+                            </div>
+                            <div class="pool-winner-btns" id="pool3-btns-${battle.id}">
+                                <button class="pool-btn louis" onclick="setPoolWinner('${battle.id}', 3, 'louis')">Louis</button>
+                                <button class="pool-btn thibault" onclick="setPoolWinner('${battle.id}', 3, 'thibault')">Thibault</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tableau des scores -->
+                    <div class="pool-standings" id="standings-${battle.id}">
+                        <div class="standing-row louis"><span>🌞 Louis</span><span class="wins" id="wins-louis-${battle.id}">0</span></div>
+                        <div class="standing-row louka"><span>🌞 Louka</span><span class="wins" id="wins-louka-${battle.id}">0</span></div>
+                        <div class="standing-row thibault"><span>🌙 Thibault</span><span class="wins" id="wins-thibault-${battle.id}">0</span></div>
                     </div>
                 </div>
 
                 <!-- FINALE -->
-                <div class="bracket-round final-round">
-                    <div class="bracket-title">🏆 Finale</div>
-                    <div class="bracket-match" id="final-${battle.id}">
-                        <div class="bracket-matchup">
-                            <span class="finalist" id="finalist1-${battle.id}">Gagnant Match 1</span>
-                            <span class="vs-bracket">VS</span>
-                            <span class="finalist" id="finalist2-${battle.id}">3ème joueur</span>
-                        </div>
-                        <div class="bracket-teams">
-                            <div class="team-slots-mini" id="team-final-p1-${battle.id}">
-                                ${renderTeamSlotsMini(battle.id, 'final-p1', maxPokemon)}
-                            </div>
-                            <div class="team-slots-mini" id="team-final-p2-${battle.id}">
-                                ${renderTeamSlotsMini(battle.id, 'final-p2', maxPokemon)}
-                            </div>
-                        </div>
-                        <div class="bracket-winner-btns" id="winner-final-btns-${battle.id}">
-                            <button class="winner-mini-btn final-btn" id="win-final-p1-${battle.id}" onclick="setFinalWinner('${battle.id}', 1)">🏆 Champion</button>
-                            <button class="winner-mini-btn final-btn" id="win-final-p2-${battle.id}" onclick="setFinalWinner('${battle.id}', 2)">🏆 Champion</button>
-                        </div>
+                <div class="final-phase" id="final-phase-${battle.id}">
+                    <div class="final-title">🏆 FINALE</div>
+                    <div class="final-matchup" id="final-matchup-${battle.id}">
+                        <span class="finalist" id="finalist1-${battle.id}">?</span>
+                        <span class="vs-final">VS</span>
+                        <span class="finalist" id="finalist2-${battle.id}">?</span>
+                    </div>
+                    <div class="final-btns" id="final-btns-${battle.id}">
+                        <button class="final-winner-btn" id="final-btn1-${battle.id}" onclick="setFinalWinner('${battle.id}', 1)">🏆 Champion</button>
+                        <button class="final-winner-btn" id="final-btn2-${battle.id}" onclick="setFinalWinner('${battle.id}', 2)">🏆 Champion</button>
                     </div>
                 </div>
             </div>
@@ -418,17 +429,75 @@ function renderBattleCard(battle) {
     return html;
 }
 
-function renderTeamSlotsMini(battleId, matchSlot, maxPokemon) {
-    let html = '<div class="team-mini-row">';
-    for (let i = 0; i < maxPokemon; i++) {
-        html += `<div class="team-slot-mini" id="team-slot-${battleId}-${matchSlot}-${i}">
-            <select class="pokemon-select-mini" onchange="selectBattlePokemon('${battleId}', '${matchSlot}', ${i}, this.value)">
-                <option value="">-</option>
-            </select>
-        </div>`;
+// Définir le gagnant d'un match de poule
+function setPoolWinner(battleId, matchNum, winner) {
+    if (!confirm(`Confirmer la victoire de ${PLAYER_NAMES[winner]} au Match ${matchNum} ?`)) {
+        return;
     }
-    html += '</div>';
-    return html;
+
+    playVictoryAnimation(winner);
+
+    dataRef.child(`battles/${battleId}/pool/match${matchNum}`).set({
+        winner: winner,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+}
+
+// Définir le gagnant de la finale
+function setFinalWinner(battleId, playerNum) {
+    dataRef.child(`battles/${battleId}`).once('value').then(snap => {
+        const battleData = snap.val() || {};
+        const finalists = getFinalists(battleData.pool);
+
+        if (finalists.length < 2) {
+            alert('Les 3 matchs de poule doivent être terminés !');
+            return;
+        }
+
+        const winner = playerNum === 1 ? finalists[0] : finalists[1];
+
+        if (!confirm(`Confirmer la victoire FINALE de ${PLAYER_NAMES[winner]} ?`)) {
+            return;
+        }
+
+        playVictoryAnimation(winner);
+
+        dataRef.child(`battles/${battleId}`).update({
+            winner: winner,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+    });
+}
+
+// Calculer les victoires de chaque joueur dans la poule
+function getPoolStandings(pool) {
+    const wins = { louis: 0, louka: 0, thibault: 0 };
+
+    if (pool) {
+        if (pool.match1 && pool.match1.winner) wins[pool.match1.winner]++;
+        if (pool.match2 && pool.match2.winner) wins[pool.match2.winner]++;
+        if (pool.match3 && pool.match3.winner) wins[pool.match3.winner]++;
+    }
+
+    return wins;
+}
+
+// Déterminer les 2 finalistes (les 2 meilleurs)
+function getFinalists(pool) {
+    const wins = getPoolStandings(pool);
+
+    // Trier par victoires
+    const sorted = Object.entries(wins).sort((a, b) => b[1] - a[1]);
+
+    // Si tout le monde a 1 victoire (égalité parfaite), on prend les 2 premiers alphabétiquement
+    // Sinon on prend les 2 avec le plus de victoires
+    if (sorted[0][1] === sorted[1][1] && sorted[1][1] === sorted[2][1]) {
+        // Égalité totale - on prend Louis et Louka par défaut
+        return ['louis', 'louka'];
+    }
+
+    // Les 2 meilleurs
+    return [sorted[0][0], sorted[1][0]];
 }
 
 // Obtenir les Pokémon vivants d'un joueur
@@ -454,159 +523,10 @@ function getAlivePokemon(player) {
     return alivePokemon;
 }
 
-// Mettre à jour les selects des combats
+// Mettre à jour l'affichage des combats (pas de selects, juste l'UI)
 function updateBattleSelects() {
-    const pokemonByPlayer = {};
-    PLAYERS.forEach(p => {
-        pokemonByPlayer[p] = getAlivePokemon(p);
-    });
-
-    ZONES_DATA.filter(z => z.isBattle).forEach(battle => {
-        const maxPokemon = parseInt(battle.rules.charAt(0)) || 6;
-        const battleData = (currentGameData.battles && currentGameData.battles[battle.id]) || {};
-
-        // Mettre à jour les sélections de joueurs pour Match 1
-        const p1Select = document.getElementById(`match1-player1-${battle.id}`);
-        const p2Select = document.getElementById(`match1-player2-${battle.id}`);
-
-        if (p1Select && battleData.match1 && battleData.match1.player1) {
-            p1Select.value = battleData.match1.player1;
-        }
-        if (p2Select && battleData.match1 && battleData.match1.player2) {
-            p2Select.value = battleData.match1.player2;
-        }
-
-        // Déterminer les joueurs sélectionnés
-        const player1 = p1Select ? p1Select.value : '';
-        const player2 = p2Select ? p2Select.value : '';
-        const thirdPlayer = PLAYERS.find(p => p !== player1 && p !== player2) || '';
-
-        // Mettre à jour les équipes Match 1
-        ['match1-p1', 'match1-p2', 'final-p1', 'final-p2'].forEach(matchSlot => {
-            let targetPlayer = '';
-            if (matchSlot === 'match1-p1') targetPlayer = player1;
-            else if (matchSlot === 'match1-p2') targetPlayer = player2;
-            else if (matchSlot === 'final-p1') {
-                // Gagnant du match 1
-                if (battleData.match1 && battleData.match1.winner) {
-                    targetPlayer = battleData.match1.winner;
-                }
-            } else if (matchSlot === 'final-p2') {
-                targetPlayer = thirdPlayer;
-            }
-
-            const pokemons = targetPlayer ? pokemonByPlayer[targetPlayer] : [];
-
-            for (let i = 0; i < maxPokemon; i++) {
-                const select = document.querySelector(`#team-slot-${battle.id}-${matchSlot}-${i} select`);
-                if (select) {
-                    const currentValue = select.value;
-                    select.innerHTML = '<option value="">-</option>';
-                    pokemons.forEach(p => {
-                        select.innerHTML += `<option value="${p.zoneId}" ${currentValue === p.zoneId ? 'selected' : ''}>${p.name}</option>`;
-                    });
-
-                    // Désactiver si pas le bon joueur
-                    select.disabled = !targetPlayer || targetPlayer !== currentPlayer;
-                }
-            }
-        });
-
-        // Mettre à jour les finalistes affichés
-        const finalist1 = document.getElementById(`finalist1-${battle.id}`);
-        const finalist2 = document.getElementById(`finalist2-${battle.id}`);
-
-        if (finalist1) {
-            if (battleData.match1 && battleData.match1.winner) {
-                finalist1.textContent = PLAYER_NAMES[battleData.match1.winner] || 'Gagnant Match 1';
-                finalist1.className = `finalist ${battleData.match1.winner}`;
-            } else {
-                finalist1.textContent = 'Gagnant Match 1';
-                finalist1.className = 'finalist';
-            }
-        }
-        if (finalist2 && thirdPlayer) {
-            finalist2.textContent = PLAYER_NAMES[thirdPlayer] || '3ème joueur';
-            finalist2.className = `finalist ${thirdPlayer}`;
-        }
-    });
-}
-
-// Mettre à jour le Match 1
-function updateMatch1(battleId) {
-    const p1 = document.getElementById(`match1-player1-${battleId}`).value;
-    const p2 = document.getElementById(`match1-player2-${battleId}`).value;
-
-    if (p1 && p2 && p1 === p2) {
-        alert('Les deux joueurs doivent être différents !');
-        return;
-    }
-
-    dataRef.child(`battles/${battleId}/match1`).update({
-        player1: p1 || null,
-        player2: p2 || null
-    });
-}
-
-function selectBattlePokemon(battleId, matchSlot, slot, zoneId) {
-    if (!zoneId) {
-        dataRef.child(`battles/${battleId}/teams/${matchSlot}/${slot}`).remove();
-    } else {
-        dataRef.child(`battles/${battleId}/teams/${matchSlot}/${slot}`).set(zoneId);
-    }
-}
-
-// Définir le gagnant du Match 1
-function setMatch1Winner(battleId, playerNum) {
-    const p1 = document.getElementById(`match1-player1-${battleId}`).value;
-    const p2 = document.getElementById(`match1-player2-${battleId}`).value;
-
-    if (!p1 || !p2) {
-        alert('Sélectionnez d\'abord les 2 joueurs du Match 1 !');
-        return;
-    }
-
-    const winner = playerNum === 1 ? p1 : p2;
-
-    if (!confirm(`Confirmer la victoire de ${PLAYER_NAMES[winner]} au Match 1 ?`)) {
-        return;
-    }
-
-    playVictoryAnimation(winner);
-
-    dataRef.child(`battles/${battleId}/match1`).update({
-        winner: winner,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-    });
-}
-
-// Définir le gagnant de la Finale
-function setFinalWinner(battleId, playerNum) {
-    dataRef.child(`battles/${battleId}/match1`).once('value').then(snap => {
-        const match1 = snap.val() || {};
-        if (!match1.winner) {
-            alert('Le Match 1 doit d\'abord être terminé !');
-            return;
-        }
-
-        const p1 = match1.player1;
-        const p2 = match1.player2;
-        const finalist1 = match1.winner;
-        const finalist2 = PLAYERS.find(p => p !== p1 && p !== p2);
-
-        const winner = playerNum === 1 ? finalist1 : finalist2;
-
-        if (!confirm(`Confirmer la victoire FINALE de ${PLAYER_NAMES[winner]} ?`)) {
-            return;
-        }
-
-        playVictoryAnimation(winner);
-
-        dataRef.child(`battles/${battleId}`).update({
-            winner: winner,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-    });
+    // Cette fonction est appelée mais on n'a plus de selects Pokemon
+    // On garde pour compatibilité
 }
 
 // Mettre à jour l'interface
@@ -844,8 +764,8 @@ function resetPlayers() {
 function updateBattlesUI(battles) {
     if (!battles) battles = {};
 
-    const wins = {};
-    PLAYERS.forEach(p => { wins[p] = 0; });
+    const totalWins = {};
+    PLAYERS.forEach(p => { totalWins[p] = 0; });
 
     ZONES_DATA.filter(z => z.isBattle).forEach(battle => {
         const battleData = battles[battle.id] || {};
@@ -854,52 +774,72 @@ function updateBattlesUI(battles) {
 
         if (!card || !resultDiv) return;
 
-        // Mettre à jour les sélections de joueurs Match 1
-        if (battleData.match1) {
-            const p1Select = document.getElementById(`match1-player1-${battle.id}`);
-            const p2Select = document.getElementById(`match1-player2-${battle.id}`);
-            if (p1Select && battleData.match1.player1) p1Select.value = battleData.match1.player1;
-            if (p2Select && battleData.match1.player2) p2Select.value = battleData.match1.player2;
+        const pool = battleData.pool || {};
 
-            // Afficher le gagnant du Match 1
-            if (battleData.match1.winner) {
-                const winBtns = document.getElementById(`winner1-btns-${battle.id}`);
-                if (winBtns) {
-                    winBtns.innerHTML = `<div class="match-winner">${PLAYER_NAMES[battleData.match1.winner]} ✓</div>`;
-                }
+        // Mettre à jour les matchs de poule
+        [1, 2, 3].forEach(matchNum => {
+            const btnsDiv = document.getElementById(`pool${matchNum}-btns-${battle.id}`);
+            if (btnsDiv && pool[`match${matchNum}`] && pool[`match${matchNum}`].winner) {
+                const winner = pool[`match${matchNum}`].winner;
+                btnsDiv.innerHTML = `<div class="pool-winner ${winner}">✓ ${PLAYER_NAMES[winner]}</div>`;
             }
-        }
+        });
 
-        // Mettre à jour les équipes sélectionnées
-        if (battleData.teams) {
-            const maxPokemon = parseInt(battle.rules.charAt(0)) || 6;
-            ['match1-p1', 'match1-p2', 'final-p1', 'final-p2'].forEach(matchSlot => {
-                const teamData = battleData.teams[matchSlot] || {};
-                for (let i = 0; i < maxPokemon; i++) {
-                    const select = document.querySelector(`#team-slot-${battle.id}-${matchSlot}-${i} select`);
-                    if (select && teamData[i]) {
-                        select.value = teamData[i];
-                    }
-                }
-            });
+        // Mettre à jour le tableau des scores
+        const standings = getPoolStandings(pool);
+        PLAYERS.forEach(player => {
+            const winsEl = document.getElementById(`wins-${player}-${battle.id}`);
+            if (winsEl) winsEl.textContent = standings[player];
+        });
+
+        // Vérifier si les 3 matchs sont terminés
+        const poolComplete = pool.match1 && pool.match2 && pool.match3;
+
+        // Mettre à jour les finalistes
+        const finalist1El = document.getElementById(`finalist1-${battle.id}`);
+        const finalist2El = document.getElementById(`finalist2-${battle.id}`);
+        const finalPhase = document.getElementById(`final-phase-${battle.id}`);
+
+        if (poolComplete) {
+            const finalists = getFinalists(pool);
+            if (finalist1El) {
+                finalist1El.textContent = PLAYER_NAMES[finalists[0]];
+                finalist1El.className = `finalist ${finalists[0]}`;
+            }
+            if (finalist2El) {
+                finalist2El.textContent = PLAYER_NAMES[finalists[1]];
+                finalist2El.className = `finalist ${finalists[1]}`;
+            }
+            if (finalPhase) finalPhase.classList.add('active');
+
+            // Mettre à jour les boutons de finale
+            const btn1 = document.getElementById(`final-btn1-${battle.id}`);
+            const btn2 = document.getElementById(`final-btn2-${battle.id}`);
+            if (btn1) btn1.className = `final-winner-btn ${finalists[0]}`;
+            if (btn2) btn2.className = `final-winner-btn ${finalists[1]}`;
         }
 
         // Gérer le gagnant final
         if (battleData.winner) {
             card.classList.add('completed');
             const winnerName = PLAYER_NAMES[battleData.winner];
-            resultDiv.innerHTML = `<div class="winner-display ${battleData.winner}">🏆 Champion: ${winnerName}</div>`;
-            wins[battleData.winner]++;
+            resultDiv.innerHTML = `<div class="winner-display ${battleData.winner}">🏆 CHAMPION: ${winnerName}</div>`;
+
+            // Cacher les boutons de finale
+            const finalBtns = document.getElementById(`final-btns-${battle.id}`);
+            if (finalBtns) finalBtns.style.display = 'none';
+
+            totalWins[battleData.winner]++;
         } else {
             card.classList.remove('completed');
             resultDiv.innerHTML = '';
         }
     });
 
-    // Mettre à jour les scores
+    // Mettre à jour le score global
     PLAYERS.forEach(player => {
         const winsEl = document.getElementById(`${player}Wins`);
-        if (winsEl) winsEl.textContent = wins[player];
+        if (winsEl) winsEl.textContent = totalWins[player];
     });
 }
 
